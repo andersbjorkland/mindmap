@@ -1,5 +1,5 @@
 package model;
 
 public enum IdeaConnectionType {
-    BRANCH, POINT, EXPLANATION
+    BRANCH, POINT, EXPLANATION, NONE
 }
