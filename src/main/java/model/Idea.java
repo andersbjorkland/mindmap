@@ -84,6 +84,7 @@ public class Idea {
     @Override
     public String toString() {
         String string = theme + "\n";
+
         String spaces = "";
         for (int i = 0; i <= childLevel; i++) {
             spaces += "  ";
@@ -91,16 +92,15 @@ public class Idea {
 
         if (!acquaintances.isEmpty()){
             for (Idea idea : acquaintances.keySet()) {
-                string += spaces + "(" + idea.theme + ")\n";
+                string += spaces + "(" + acquaintances.get(idea) + ": " + idea.theme + ")\n";
             }
         }
 
         if (!children.isEmpty()) {
             for (Idea idea : children.keySet()) {
-                string += spaces + idea + "\n";
+                string += spaces + children.get(idea) + ": " + idea;
             }
         }
-
         return string;
     }
 }
