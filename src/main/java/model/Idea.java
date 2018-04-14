@@ -83,34 +83,22 @@ public class Idea {
 
     @Override
     public String toString() {
-        String string = "Theme: " + theme + "\n";
+        String string = theme + "\n";
         String spaces = "";
-        for (int i = 0; i < childLevel; i++) {
+        for (int i = 0; i <= childLevel; i++) {
             spaces += "  ";
         }
 
-        if (!children.isEmpty()) {
-
-            if (children.keySet().size() == 1) {
-                string += spaces + "Child: \n";
-            } else {
-                string += spaces + "Children: \n";
+        if (!acquaintances.isEmpty()){
+            for (Idea idea : acquaintances.keySet()) {
+                string += spaces + "(" + idea.theme + ")\n";
             }
+        }
 
+        if (!children.isEmpty()) {
             for (Idea idea : children.keySet()) {
                 string += spaces + idea + "\n";
             }
-        } else {
-            string += spaces + " - No children. \n";
-        }
-
-        if (!acquaintances.isEmpty()){
-            string += spaces + "Acquaintances: \n";
-            for (Idea idea : acquaintances.keySet()) {
-                string += spaces + idea;
-            }
-        } else {
-            string += spaces + " - No acquaintances. \n";
         }
 
         return string;
