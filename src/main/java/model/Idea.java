@@ -15,6 +15,7 @@ public class Idea {
     private int id;
     private String theme;
     private Idea parent;
+    private int childLevel;
     private Map<Idea, IdeaConnectionType> children;
     private Map<Idea, IdeaConnectionType> acquaintances;
     private boolean isMainIdea;
@@ -26,6 +27,11 @@ public class Idea {
         this.id = numberOfIdeas;
         this.theme = theme;
         this.isMainIdea = isMainIdea;
+        if (isMainIdea) {
+            childLevel = 0;
+        } else {
+            childLevel = -1;
+        }
         numberOfIdeas++;
     }
 
@@ -35,6 +41,7 @@ public class Idea {
 
     public void addChild(Idea idea, IdeaConnectionType connectionType) {
         idea.setParent(this);
+        idea.childLevel = this.childLevel + 1;
         children.put(idea, connectionType);
     }
 
@@ -77,27 +84,33 @@ public class Idea {
     @Override
     public String toString() {
         String string = "Theme: " + theme + "\n";
+        String spaces = "";
+        for (int i = 0; i < childLevel; i++) {
+            spaces += "  ";
+        }
+
         if (!children.isEmpty()) {
+
             if (children.keySet().size() == 1) {
-                string += "Child: \n";
+                string += spaces + "Child: \n";
             } else {
-                string += "Children: \n";
+                string += spaces + "Children: \n";
             }
 
             for (Idea idea : children.keySet()) {
-                string += " - " + idea + "\n";
+                string += spaces + idea + "\n";
             }
         } else {
-            string += "\n - No children. \n";
+            string += spaces + " - No children. \n";
         }
 
         if (!acquaintances.isEmpty()){
-            string += "Acquaintances: \n";
+            string += spaces + "Acquaintances: \n";
             for (Idea idea : acquaintances.keySet()) {
-                string += " - " + idea;
+                string += spaces + idea;
             }
         } else {
-            string += "\n - No acquaintances. \n";
+            string += spaces + " - No acquaintances. \n";
         }
 
         return string;
