@@ -10,14 +10,48 @@ public class Mind {
     private List<Idea> ideas = new ArrayList<>();
     private Idea mainIdea;
 
+    public Mind() {
+        createIdea();
+    }
+
+    public void createIdea() {
+
+        Idea idea1 = new Idea("Dogs", true);
+        Idea idea2 = new Idea("Big");
+        Idea idea3 = new Idea("Small");
+        Idea idea4 = new Idea("Greyhound");
+        Idea idea5 = new Idea("Chihuahua");
+        Idea idea6 = new Idea("Type of dog");
+
+        idea2.addChild(idea4, IdeaConnectionType.BRANCH);
+        idea2.addAcquitance(idea6, IdeaConnectionType.EXPLANATION);
+        idea3.addChild(idea5, IdeaConnectionType.BRANCH);
+        idea3.addAcquitance(idea6, IdeaConnectionType.EXPLANATION);
+        idea1.addChild(idea2, IdeaConnectionType.BRANCH);
+        idea1.addChild(idea3, IdeaConnectionType.BRANCH);
+
+        mainIdea = idea1;
+
+    }
+
     /* as ideas are added to the mind map, get reference to main idea,
      * and add idea to a list of ideas.
      */
-    public void addIdea(Idea idea) {
-        if (idea.getIsMainIdea()) {
-            mainIdea = idea;
+    public void addIdea(Idea... ideas) {
+        if (ideas.length > 0) {
+            for (Idea idea : ideas) {
+                if (idea.getIsMainIdea()) {
+                    mainIdea = idea;
+                }
+                this.ideas.add(idea);
+            }
         }
+    }
 
-        ideas.add(idea);
+    /*
+     * Print the objects in the map
+     */
+    public void printMind() {
+        System.out.println(mainIdea);
     }
 }
