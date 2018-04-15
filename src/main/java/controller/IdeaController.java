@@ -1,20 +1,17 @@
-package model;
+package controller;
 
-import java.util.ArrayList;
-import java.util.List;
+import model.Idea;
+import model.IdeaConnectionType;
 
-/**
- * Keeps track of all the thoughts being a part of a mind map.
- */
-public class Mind {
-    private List<Idea> ideas = new ArrayList<>();
-    private Idea mainIdea;
+public class IdeaController {
+    public void start() {
 
-    public Mind() {
-        createIdea();
     }
 
-    public void createIdea() {
+    /*
+     * Example of how a mind can be structured.
+     */
+    public void mindExample() {
 
         Idea idea1 = new Idea("Dogs", true);
         Idea idea2 = new Idea("Big");
@@ -38,28 +35,8 @@ public class Mind {
         idea2.addChild(idea8, IdeaConnectionType.BRANCH);
         idea3.addChild(idea7, IdeaConnectionType.BRANCH);
 
-        mainIdea = idea1;
+        Idea mainIdea = idea1;
 
-    }
-
-    /* as ideas are added to the mind map, get reference to main idea,
-     * and add idea to a list of ideas.
-     */
-    public void addIdea(Idea... ideas) {
-        if (ideas.length > 0) {
-            for (Idea idea : ideas) {
-                if (idea.getIsMainIdea()) {
-                    mainIdea = idea;
-                }
-                this.ideas.add(idea);
-            }
-        }
-    }
-
-    /*
-     * Print the objects in the map
-     */
-    public void printMind() {
         System.out.println(mainIdea);
     }
 }

@@ -19,9 +19,11 @@ public class Idea {
     private Map<Idea, IdeaConnectionType> children;
     private Map<Idea, IdeaConnectionType> acquaintances;
     private boolean isMainIdea;
+    private Bubble bubble;
+
     private static int numberOfIdeas = 0;
 
-    Idea(String theme, boolean isMainIdea) {
+    public Idea(String theme, boolean isMainIdea) {
         children = new HashMap<>();
         acquaintances = new HashMap<>();
         this.id = numberOfIdeas;
@@ -32,17 +34,31 @@ public class Idea {
         } else {
             childLevel = -1;
         }
+        bubble = new Bubble();
         numberOfIdeas++;
     }
 
-    Idea(String theme) {
+    public Idea(String theme) {
         this(theme, false);
     }
 
-    public void addChild(Idea idea, IdeaConnectionType connectionType) {
-        idea.setParent(this);
-        idea.childLevel = this.childLevel + 1;
-        children.put(idea, connectionType);
+    /**
+     * Adds  a child to the current Idea
+     * @param child as the Idea that branches off the current Idea (parent).
+     * @param connectionType specifies what connection the child should have to the parent Idea.
+     */
+    public void addChild(Idea child, IdeaConnectionType connectionType) {
+        child.setParent(this);
+        child.childLevel = this.childLevel + 1;
+        children.put(child, connectionType);
+    }
+
+    /**
+     * Adds a child to the current Idea with default IdeaConnectionType.BRANCH to its parent.
+     * @param child
+     */
+    public void addChild(Idea child) {
+        addChild(child, IdeaConnectionType.BRANCH);
     }
 
     public void addAcquitance(Idea idea, IdeaConnectionType connectionType) {

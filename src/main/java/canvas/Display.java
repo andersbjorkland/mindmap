@@ -1,10 +1,10 @@
 package canvas;
 
-import model.Mind;
+import controller.IdeaController;
 
 public class Display {
     public static void main(String[] args) {
-        Mind mind = new Mind();
-        mind.printMind();
+        IdeaController ideaController = new IdeaController();
+        ideaController.mindExample();
     }
 }
