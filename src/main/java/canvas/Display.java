@@ -1,10 +1,14 @@
 package canvas;
 
-import controller.IdeaController;
+import javafx.application.Application;
+import javafx.stage.Stage;
 
-public class Display {
-    public static void main(String[] args) {
-        IdeaController ideaController = new IdeaController();
-        ideaController.mindExample();
+public class Display extends Application {
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        primaryStage.setTitle("Mind Map");
+
+        primaryStage.show();
     }
 }

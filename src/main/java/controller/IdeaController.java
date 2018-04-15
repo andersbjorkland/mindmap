@@ -4,7 +4,7 @@ import model.Idea;
 import model.IdeaConnectionType;
 
 public class IdeaController {
-    public void start() {
+    public void addThought() {
 
     }
 

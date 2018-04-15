@@ -9,7 +9,7 @@ import java.util.Map;
  * This thought is either the parent of all other thoughts in the mind map,
  * or it is a child to another thought.
  *
- * The child defines its connection to its parent.
+ * A map tracks the connection types each child (Idea) has to its parent.
  */
 public class Idea {
     private int id;
@@ -99,7 +99,7 @@ public class Idea {
 
     @Override
     public String toString() {
-        String string = theme + "\n";
+        String string = theme + " <" + bubble.getType() + ">\n";
 
         String spaces = "";
         for (int i = 0; i <= childLevel; i++) {
@@ -108,13 +108,13 @@ public class Idea {
 
         if (!acquaintances.isEmpty()){
             for (Idea idea : acquaintances.keySet()) {
-                string += spaces + "(" + acquaintances.get(idea) + ": " + idea.theme + ")\n";
+                string += spaces + "(" + acquaintances.get(idea) + ": " + idea.theme + ") <" + idea.bubble.getType() + ">\n";
             }
         }
 
         if (!children.isEmpty()) {
             for (Idea idea : children.keySet()) {
-                string += spaces + children.get(idea) + ": " + idea;
+                string += spaces + children.get(idea) + ": " + idea; // recursion to get each child and its children in turn.
             }
         }
         return string;
