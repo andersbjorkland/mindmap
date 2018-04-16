@@ -23,6 +23,32 @@ public class Idea {
 
     private static int numberOfIdeas = 0;
 
+    /**
+     * Create an Idea with its theme, if it is main idea and instructions for display in a Bubble.
+     * @param theme the semantic content of the Idea as a String
+     * @param isMainIdea the central Idea of the mindmap
+     * @param bubble instructions for displaying the Idea.
+     */
+    public Idea(String theme, boolean isMainIdea, Bubble bubble) {
+        children = new HashMap<>();
+        acquaintances = new HashMap<>();
+        this.id = numberOfIdeas;
+        this.theme = theme;
+        this.isMainIdea = isMainIdea;
+        if (isMainIdea) {
+            childLevel = 0;
+        } else {
+            childLevel = -1;
+        }
+        this.bubble = bubble;
+        numberOfIdeas++;
+    }
+
+    /**
+     * Create an Idea with its theme and if it is main idea.
+     * @param theme the semantic content of the Idea as a String
+     * @param isMainIdea the central Idea of the mindmap
+     */
     public Idea(String theme, boolean isMainIdea) {
         children = new HashMap<>();
         acquaintances = new HashMap<>();
@@ -55,7 +81,7 @@ public class Idea {
 
     /**
      * Adds a child to the current Idea with default IdeaConnectionType.BRANCH to its parent.
-     * @param child
+     * @param child the Idea to be added to a parent.
      */
     public void addChild(Idea child) {
         addChild(child, IdeaConnectionType.BRANCH);
@@ -95,6 +121,14 @@ public class Idea {
 
     public boolean isMainIdea() {
         return isMainIdea;
+    }
+
+    public Bubble getBubble() {
+        return bubble;
+    }
+
+    public void setBubble(Bubble bubble) {
+        this.bubble = bubble;
     }
 
     @Override

@@ -13,6 +13,27 @@ public class Bubble {
     private int sizeX;
     private int sizeY;
 
+    public Bubble(Color color, BubbleType type, int lineThickness, int sizeX, int sizeY) {
+        this.color = color;
+        this.type = type;
+        this.lineThickness = lineThickness;
+        this.sizeX = sizeX;
+        this.sizeY = sizeY;
+    }
+
+    public Bubble(Color color, BubbleType type, int sizeX, int sizeY) {
+        this(color, type, 2, sizeX, sizeY);
+    }
+
+    /**
+     * Default bubble type i Ellipse, and color black
+     * @param sizeX is width in pixels
+     * @param sizeY is height in pixels
+     */
+    public Bubble(int sizeX, int sizeY) {
+        this(Color.BLACK, BubbleType.ELLIPSE, sizeX, sizeY);
+    }
+
     public Bubble() {
         color = Color.BLACK;
         type = BubbleType.ELLIPSE;
