@@ -27,10 +27,6 @@ public class Display extends Application {
     private static final float DEFAULT_ELLIPSE_RATIO = 0.8f; // height to width ratio
     private static final Color DEFAULT_FILL = Color.WHITE;
 
-    // Movable object, credit to this tutorial: http://java-buddy.blogspot.se/2013/07/javafx-drag-and-move-something.html
-    // Now with movable stack.
-
-    Shape shapeRed;
     private double orgSceneX, orgSceneY;
     private double orgTranslateX, orgTranslateY;
 
@@ -38,7 +34,7 @@ public class Display extends Application {
     public void start(Stage primaryStage) throws Exception {
         // Create shapes for progress testing.
         Bubble bubble = new Bubble(30, 20);
-        Idea idea = new Idea("Tester and a long ass line to see if size changes", true, bubble);
+        Idea idea = new Idea("Tester", true, bubble);
         Pane pane = ideaToPane(idea);
 
         Bubble anotherBubble = new Bubble(Color.RED, BubbleType.ELLIPSE, 40, 30);
@@ -126,6 +122,8 @@ public class Display extends Application {
         return y >= 128 ? Color.BLACK : Color.WHITE;
     }
 
+    // Movable object, credit to this tutorial: http://java-buddy.blogspot.se/2013/07/javafx-drag-and-move-something.html
+    // Now with movable stack.
     private EventHandler<MouseEvent> paneOnMousePressedEventHandler = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event) {
@@ -144,8 +142,28 @@ public class Display extends Application {
             double newTranslateX = orgTranslateX + offsetX;
             double newTranslateY = orgTranslateY + offsetY;
 
+            // focus on newTranslateX/Y
+            double sourceWidth = ((Pane)(event.getSource())).getWidth();
+            double sourceHeight = ((Pane)(event.getSource())).getHeight();
+
+            // BOUNDS
+            // boundary left and right
+            if (newTranslateX < -(sourceWidth/2)) {
+                newTranslateX = -Math.round(sourceWidth/2);
+            } else if (newTranslateX > (DEFAULT_SCENE_WIDTH - sourceWidth/2 + 10) ) {
+                newTranslateX = DEFAULT_SCENE_WIDTH - Math.round(sourceWidth/2) + 10;
+            }
+
+            // boundary up and down
+            if (newTranslateY < - (sourceHeight/2)) {
+                newTranslateY = - Math.round(sourceHeight/2);
+            } else if (newTranslateY > (DEFAULT_SCENE_HEIGHT - sourceHeight/2 + 10) ) {
+                newTranslateY = DEFAULT_SCENE_HEIGHT - Math.round(sourceHeight/2) + 10;
+            }
+
             ((Pane)(event.getSource())).setTranslateX(newTranslateX);
             ((Pane)(event.getSource())).setTranslateY(newTranslateY);
+
         }
     };
 }
