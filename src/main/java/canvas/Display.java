@@ -26,6 +26,7 @@ import static model.BubbleType.ELLIPSE;
 public class Display extends Application {
     private static final double DEFAULT_SCENE_WIDTH = 600.0;
     private static final double DEFAULT_SCENE_HEIGHT = 600.0;
+    private static final Color DEFAULT_SCENE_BACKGROUND = Color.LIGHTGRAY;
     private static final float DEFAULT_SHAPE_SIZE = 50.0f;
     private static final float DEFAULT_ELLIPSE_RATIO = 0.8f; // height to width ratio
     private static final Color DEFAULT_FILL = new Color(1.0, 1.0, 1.0, 0.7);
@@ -56,7 +57,7 @@ public class Display extends Application {
         Group root = new Group();
         root.getChildren().addAll(pane, anotherPane);
 
-        Scene scene = new Scene(root, DEFAULT_SCENE_WIDTH, DEFAULT_SCENE_HEIGHT, Color.WHITE);
+        Scene scene = new Scene(root, DEFAULT_SCENE_WIDTH, DEFAULT_SCENE_HEIGHT, DEFAULT_SCENE_BACKGROUND);
 
         primaryStage.setResizable(false);
         primaryStage.setScene(scene);
