@@ -21,34 +21,36 @@ import model.IdeaConnectionType;
 import static model.BubbleType.ELLIPSE;
 
 public class Display extends Application {
-
-    static final float DEFAULT_SHAPE_SIZE = 50.0f;
-    static final float DEFAULT_ELLIPSE_RATIO = 0.8f; // height to width ratio
-    static final Color DEFAULT_FILL = Color.WHITE;
+    private static final double DEFAULT_SCENE_WIDTH = 600.0;
+    private static final double DEFAULT_SCENE_HEIGHT = 600.0;
+    private static final float DEFAULT_SHAPE_SIZE = 50.0f;
+    private static final float DEFAULT_ELLIPSE_RATIO = 0.8f; // height to width ratio
+    private static final Color DEFAULT_FILL = Color.WHITE;
 
     // Movable object, credit to this tutorial: http://java-buddy.blogspot.se/2013/07/javafx-drag-and-move-something.html
     // Now with movable stack.
 
     Shape shapeRed;
-    double orgSceneX, orgSceneY;
-    double orgTranslateX, orgTranslateY;
+    private double orgSceneX, orgSceneY;
+    private double orgTranslateX, orgTranslateY;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         // Create shapes for progress testing.
         Bubble bubble = new Bubble(30, 20);
-        Idea idea = new Idea("Tester", true, bubble);
+        Idea idea = new Idea("Tester and a long ass line to see if size changes", true, bubble);
         Pane pane = ideaToPane(idea);
 
         Bubble anotherBubble = new Bubble(Color.RED, BubbleType.ELLIPSE, 40, 30);
         Idea anotherIdea = new Idea("Tester child", false, anotherBubble);
         Pane anotherPane = ideaToPane(anotherIdea);
 
+        idea.addChild(anotherIdea);
 
         Group root = new Group();
         root.getChildren().addAll(pane, anotherPane);
 
-        Scene scene = new Scene(root, 300, 300, Color.WHITE);
+        Scene scene = new Scene(root, DEFAULT_SCENE_WIDTH, DEFAULT_SCENE_HEIGHT, Color.WHITE);
 
         primaryStage.setResizable(false);
         primaryStage.setScene(scene);
@@ -88,6 +90,17 @@ public class Display extends Application {
         float width = bubble.getSizeX();
         float height = bubble.getSizeY();
 
+        // Change width and height of object if the text to be contained within is larger than the shape.
+        Text text = new Text(idea.getTheme());
+        float textWidth = (float)text.getLayoutBounds().getWidth();
+        float textHeight = (float)text.getLayoutBounds().getHeight();
+        if (width < textWidth) {
+            width = textWidth + 10;
+        }
+        if (height < textHeight) {
+            height = textHeight + 10;
+        }
+
         shape.setStrokeWidth(bubble.getLineThickness());
         shape.setStroke(bubble.getColor());
         shape.setFill(DEFAULT_FILL);
@@ -104,16 +117,16 @@ public class Display extends Application {
     /**
      * Takes a color and returns white or black depending on brightness of color.
      * Credit to brimborium on https://stackoverflow.com/questions/4672271/reverse-opposing-colors
-     * @param color
+     * @param color as the color to be contrasted to.
      * @return Color.WHITE or Color.BLACK depending on brightness of argument color.
      */
-    public static Color getContrastColor(Color color) {
+    private static Color getContrastColor(Color color) {
         // Multiplies with 255 to take into account that the example was taken from an awt implementation (not JavaFX)
         double y = (299 * (color.getRed()*255) + 587 * (color.getGreen()*255) + 114 * (color.getBlue()*255)) / 1000;
         return y >= 128 ? Color.BLACK : Color.WHITE;
     }
 
-    EventHandler<MouseEvent> paneOnMousePressedEventHandler = new EventHandler<MouseEvent>() {
+    private EventHandler<MouseEvent> paneOnMousePressedEventHandler = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event) {
             orgSceneX = event.getSceneX();
@@ -123,7 +136,7 @@ public class Display extends Application {
         }
     };
 
-    EventHandler<MouseEvent> paneOnMouseDraggedEventHandler = new EventHandler<MouseEvent>() {
+    private EventHandler<MouseEvent> paneOnMouseDraggedEventHandler = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event) {
             double offsetX = event.getSceneX() - orgSceneX;
