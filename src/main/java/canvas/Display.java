@@ -6,14 +6,18 @@ import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class Display extends Application {
 
     // Movable object, credit to this tutorial: http://java-buddy.blogspot.se/2013/07/javafx-drag-and-move-something.html
+    // Now to movable stack.
 
     Shape shapeRed;
     double orgSceneX, orgSceneY;
@@ -25,11 +29,17 @@ public class Display extends Application {
         shapeRed = new Ellipse(50.0, 45.0);
         shapeRed.setFill(Color.RED);
         shapeRed.setCursor(Cursor.HAND);
-        shapeRed.setOnMousePressed(shapeOnMousePressedEventHandler);
-        shapeRed.setOnMouseDragged(shapeOnMouseDraggedEventHandler);
+
+        Text shapeRedText = new Text("TEXT");
+
+        StackPane pane = new StackPane();
+        pane.getChildren().addAll(shapeRed, shapeRedText);
+        pane.setOnMousePressed(paneOnMousePressedEventHandler);
+        pane.setOnMouseDragged(paneOnMouseDraggedEventHandler);
+
 
         Group root = new Group();
-        root.getChildren().add(shapeRed);
+        root.getChildren().add(pane);
 
         Scene scene = new Scene(root, 300, 300, Color.BLACK);
 
@@ -40,17 +50,17 @@ public class Display extends Application {
         primaryStage.show();
     }
 
-    EventHandler<MouseEvent> shapeOnMousePressedEventHandler = new EventHandler<MouseEvent>() {
+    EventHandler<MouseEvent> paneOnMousePressedEventHandler = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event) {
             orgSceneX = event.getSceneX();
             orgSceneY = event.getSceneY();
-            orgTranslateX = ((Shape)(event.getSource())).getTranslateX();
-            orgTranslateY = ((Shape)(event.getSource())).getTranslateY();
+            orgTranslateX = ((Pane)(event.getSource())).getTranslateX();
+            orgTranslateY = ((Pane)(event.getSource())).getTranslateY();
         }
     };
 
-    EventHandler<MouseEvent> shapeOnMouseDraggedEventHandler = new EventHandler<MouseEvent>() {
+    EventHandler<MouseEvent> paneOnMouseDraggedEventHandler = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event) {
             double offsetX = event.getSceneX() - orgSceneX;
@@ -58,8 +68,8 @@ public class Display extends Application {
             double newTranslateX = orgTranslateX + offsetX;
             double newTranslateY = orgTranslateY + offsetY;
 
-            ((Shape)(event.getSource())).setTranslateX(newTranslateX);
-            ((Shape)(event.getSource())).setTranslateY(newTranslateY);
+            ((Pane)(event.getSource())).setTranslateX(newTranslateX);
+            ((Pane)(event.getSource())).setTranslateY(newTranslateY);
         }
     };
 }
