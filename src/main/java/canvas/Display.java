@@ -5,6 +5,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -18,6 +19,8 @@ import model.BubbleType;
 import model.Idea;
 import model.IdeaConnectionType;
 
+import java.io.File;
+
 import static model.BubbleType.ELLIPSE;
 
 public class Display extends Application {
@@ -25,19 +28,26 @@ public class Display extends Application {
     private static final double DEFAULT_SCENE_HEIGHT = 600.0;
     private static final float DEFAULT_SHAPE_SIZE = 50.0f;
     private static final float DEFAULT_ELLIPSE_RATIO = 0.8f; // height to width ratio
-    private static final Color DEFAULT_FILL = Color.WHITE;
+    private static final Color DEFAULT_FILL = new Color(1.0, 1.0, 1.0, 0.7);
 
     private double orgSceneX, orgSceneY;
     private double orgTranslateX, orgTranslateY;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        try {
+            Image icon = new Image("icon.png");
+            primaryStage.getIcons().add(icon);
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+
         // Create shapes for progress testing.
-        Bubble bubble = new Bubble(30, 20);
+        Bubble bubble = new Bubble(Color.DARKRED, BubbleType.ELLIPSE, 5,80, 20);
         Idea idea = new Idea("Tester", true, bubble);
         Pane pane = ideaToPane(idea);
 
-        Bubble anotherBubble = new Bubble(Color.RED, BubbleType.ELLIPSE, 40, 30);
+        Bubble anotherBubble = new Bubble(Color.RED, BubbleType.ELLIPSE, 3,40, 20);
         Idea anotherIdea = new Idea("Tester child", false, anotherBubble);
         Pane anotherPane = ideaToPane(anotherIdea);
 
@@ -91,10 +101,10 @@ public class Display extends Application {
         float textWidth = (float)text.getLayoutBounds().getWidth();
         float textHeight = (float)text.getLayoutBounds().getHeight();
         if (width < textWidth) {
-            width = textWidth + 10;
+            width = textWidth + 5;
         }
         if (height < textHeight) {
-            height = textHeight + 10;
+            height = textHeight + 2;
         }
 
         shape.setStrokeWidth(bubble.getLineThickness());
