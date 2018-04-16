@@ -2,7 +2,6 @@ package canvas;
 
 import javafx.application.Application;
 import javafx.event.EventHandler;
-import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -17,11 +16,6 @@ import javafx.stage.Stage;
 import model.Bubble;
 import model.BubbleType;
 import model.Idea;
-import model.IdeaConnectionType;
-
-import java.io.File;
-
-import static model.BubbleType.ELLIPSE;
 
 public class Display extends Application {
     private static final double DEFAULT_SCENE_WIDTH = 600.0;
@@ -81,6 +75,7 @@ public class Display extends Application {
         pane.getChildren().addAll(shape, text);
         pane.setOnMousePressed(paneOnMousePressedEventHandler);
         pane.setOnMouseDragged(paneOnMouseDraggedEventHandler);
+        pane.setOnMouseClicked(event -> System.out.println(idea));
         return pane;
     }
 
@@ -177,4 +172,5 @@ public class Display extends Application {
 
         }
     };
+
 }
