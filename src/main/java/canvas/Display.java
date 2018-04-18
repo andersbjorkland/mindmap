@@ -18,12 +18,12 @@ import model.BubbleType;
 import model.Idea;
 
 public class Display extends Application {
-    private static final double DEFAULT_SCENE_WIDTH = 600.0;
-    private static final double DEFAULT_SCENE_HEIGHT = 600.0;
-    private static final Color DEFAULT_SCENE_BACKGROUND = Color.LIGHTGRAY;
-    private static final float DEFAULT_SHAPE_SIZE = 50.0f;
-    private static final float DEFAULT_ELLIPSE_RATIO = 0.8f; // height to width ratio
-    private static final Color DEFAULT_FILL = new Color(1.0, 1.0, 1.0, 0.7);
+    private static final double SCENE_WIDTH = 600.0;
+    private static final double SCENE_HEIGHT = 600.0;
+    private static final Color SCENE_BACKGROUND = Color.LIGHTGRAY;
+    private static final float SHAPE_SIZE = 50.0f;
+    private static final Color SHAPE_FILL = new Color(1.0, 1.0, 1.0, 0.7);
+    private static final float ELLIPSE_RATIO = 0.8f; // height to width ratio
 
     private double orgSceneX, orgSceneY;
     private double orgTranslateX, orgTranslateY;
@@ -51,7 +51,7 @@ public class Display extends Application {
         Group root = new Group();
         root.getChildren().addAll(pane, anotherPane);
 
-        Scene scene = new Scene(root, DEFAULT_SCENE_WIDTH, DEFAULT_SCENE_HEIGHT, DEFAULT_SCENE_BACKGROUND);
+        Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT, SCENE_BACKGROUND);
 
         primaryStage.setResizable(false);
         primaryStage.setScene(scene);
@@ -85,7 +85,7 @@ public class Display extends Application {
      * @return a subclass-object of the Shape class.
      */
     public Shape ideaToShape(Idea idea) {
-        Shape shape = new Ellipse(DEFAULT_SHAPE_SIZE, DEFAULT_SHAPE_SIZE*DEFAULT_ELLIPSE_RATIO);
+        Shape shape = new Ellipse(SHAPE_SIZE, SHAPE_SIZE * ELLIPSE_RATIO);
         Bubble bubble = idea.getBubble();
         BubbleType shapeType = bubble.getType();
 
@@ -105,7 +105,7 @@ public class Display extends Application {
 
         shape.setStrokeWidth(bubble.getLineThickness());
         shape.setStroke(bubble.getColor());
-        shape.setFill(DEFAULT_FILL);
+        shape.setFill(SHAPE_FILL);
 
         switch (shapeType) {
             case ELLIPSE:   ((Ellipse)shape).setRadiusX(width);
@@ -156,15 +156,15 @@ public class Display extends Application {
             // boundary left and right
             if (newTranslateX < -(sourceWidth/2)) {
                 newTranslateX = -Math.round(sourceWidth/2);
-            } else if (newTranslateX > (DEFAULT_SCENE_WIDTH - sourceWidth/2 + 10) ) {
-                newTranslateX = DEFAULT_SCENE_WIDTH - Math.round(sourceWidth/2) + 10;
+            } else if (newTranslateX > (SCENE_WIDTH - sourceWidth/2 + 10) ) {
+                newTranslateX = SCENE_WIDTH - Math.round(sourceWidth/2) + 10;
             }
 
             // boundary up and down
             if (newTranslateY < - (sourceHeight/2)) {
                 newTranslateY = - Math.round(sourceHeight/2);
-            } else if (newTranslateY > (DEFAULT_SCENE_HEIGHT - sourceHeight/2 + 10) ) {
-                newTranslateY = DEFAULT_SCENE_HEIGHT - Math.round(sourceHeight/2) + 10;
+            } else if (newTranslateY > (SCENE_HEIGHT - sourceHeight/2 + 10) ) {
+                newTranslateY = SCENE_HEIGHT - Math.round(sourceHeight/2) + 10;
             }
 
             ((Pane)(event.getSource())).setTranslateX(newTranslateX);
