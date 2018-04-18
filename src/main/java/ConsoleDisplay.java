@@ -19,7 +19,11 @@ public class ConsoleDisplay {
         System.out.println("Parent / Idea / Child level ");
         for (Idea extractedIdea: ideas) {
             if (!extractedIdea.isMainIdea()) {
-                System.out.println(extractedIdea.getParent().getTheme() + ": " + extractedIdea.getTheme() + ": " + extractedIdea.getChildLevel());
+                if (extractedIdea.hasParent()) {
+                    System.out.println(extractedIdea.getParent().getTheme() + ": " + extractedIdea.getTheme() + ": " + extractedIdea.getChildLevel());
+                } else {
+                    System.out.println("No parent: " + extractedIdea.getTheme() + ": " + extractedIdea.getChildLevel());
+                }
             } else {
                 System.out.println("Main Idea: " + extractedIdea.getTheme() + ": " + extractedIdea.getChildLevel());
             }

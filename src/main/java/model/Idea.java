@@ -99,6 +99,10 @@ public class Idea {
         return parent;
     }
 
+    public boolean hasParent() {
+        return childLevel > 0;
+    }
+
     public int getChildLevel() {
         return childLevel;
     }

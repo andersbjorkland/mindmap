@@ -11,9 +11,11 @@ public class IdeaController {
     public Set<Idea> extractUniqueIdeas(Idea masterIdea) {
         Set<Idea> ideas = new HashSet<>();
         ideas.add(masterIdea);
+        ideas.addAll(masterIdea.getAcquaintances().keySet());
         Set<Idea> ideaChildren = masterIdea.getChildren().keySet();
         if (hasChildren(masterIdea)){
             for (Idea idea: ideaChildren) {
+                //ideas.addAll(idea.getAcquaintances().keySet());
                 ideas.addAll(extractUniqueIdeas(idea));
             }
         }
@@ -41,6 +43,7 @@ public class IdeaController {
         Idea typeOfDog = new Idea("Type of dog");
         Idea terrier = new Idea("Terrier");
         Idea goldenRetriever = new Idea("Golden Retriever");
+        Idea cute = new Idea("Cute");
 
         Idea a = new Idea("Happiness");
 
@@ -55,6 +58,7 @@ public class IdeaController {
 
         big.addAcquitance(typeOfDog, IdeaConnectionType.EXPLANATION);
         small.addAcquitance(typeOfDog, IdeaConnectionType.EXPLANATION);
+        chihuahua.addAcquitance(cute, IdeaConnectionType.EXPLANATION);
 
         Idea mainIdea = dogs;
 
