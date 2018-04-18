@@ -95,6 +95,14 @@ public class Idea {
         this.parent = parent;
     }
 
+    public Idea getParent() {
+        return parent;
+    }
+
+    public int getChildLevel() {
+        return childLevel;
+    }
+
     public boolean getIsMainIdea() {
         return isMainIdea;
     }

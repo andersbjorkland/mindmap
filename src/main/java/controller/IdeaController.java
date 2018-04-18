@@ -3,7 +3,27 @@ package controller;
 import model.Idea;
 import model.IdeaConnectionType;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class IdeaController {
+
+    public Set<Idea> extractUniqueIdeas(Idea masterIdea) {
+        Set<Idea> ideas = new HashSet<>();
+        ideas.add(masterIdea);
+        Set<Idea> ideaChildren = masterIdea.getChildren().keySet();
+        if (hasChildren(masterIdea)){
+            for (Idea idea: ideaChildren) {
+                ideas.addAll(extractUniqueIdeas(idea));
+            }
+        }
+        return ideas;
+    }
+
+    private boolean hasChildren(Idea idea) {
+        return idea.getChildren().keySet().size() > 0;
+    }
+
     public void addThought() {
 
     }
@@ -11,32 +31,33 @@ public class IdeaController {
     /*
      * Example of how a mind can be structured.
      */
-    public void mindExample() {
+    public Idea mindExample() {
 
-        Idea idea1 = new Idea("Dogs", true);
-        Idea idea2 = new Idea("Big");
-        Idea idea3 = new Idea("Small");
-        Idea idea4 = new Idea("Greyhound");
-        Idea idea5 = new Idea("Chihuahua");
-        Idea idea6 = new Idea("Type of dog");
-        Idea idea7 = new Idea("Terrier");
-        Idea idea8 = new Idea("Golden Retriever");
+        Idea dogs = new Idea("Dogs", true);
+        Idea big = new Idea("Big");
+        Idea small = new Idea("Small");
+        Idea greyhound = new Idea("Greyhound");
+        Idea chihuahua = new Idea("Chihuahua");
+        Idea typeOfDog = new Idea("Type of dog");
+        Idea terrier = new Idea("Terrier");
+        Idea goldenRetriever = new Idea("Golden Retriever");
 
         Idea a = new Idea("Happiness");
 
-        idea1.addChild(a, IdeaConnectionType.POINT);
+        dogs.addChild(a, IdeaConnectionType.POINT);
+        dogs.addChild(big, IdeaConnectionType.BRANCH);
+        dogs.addChild(small, IdeaConnectionType.BRANCH);
 
-        idea2.addChild(idea4, IdeaConnectionType.BRANCH);
-        idea2.addAcquitance(idea6, IdeaConnectionType.EXPLANATION);
-        idea3.addChild(idea5, IdeaConnectionType.BRANCH);
-        idea3.addAcquitance(idea6, IdeaConnectionType.EXPLANATION);
-        idea1.addChild(idea2, IdeaConnectionType.BRANCH);
-        idea1.addChild(idea3, IdeaConnectionType.BRANCH);
-        idea2.addChild(idea8, IdeaConnectionType.BRANCH);
-        idea3.addChild(idea7, IdeaConnectionType.BRANCH);
+        big.addChild(greyhound, IdeaConnectionType.BRANCH);
+        big.addChild(goldenRetriever, IdeaConnectionType.BRANCH);
+        small.addChild(chihuahua, IdeaConnectionType.BRANCH);
+        small.addChild(terrier, IdeaConnectionType.BRANCH);
 
-        Idea mainIdea = idea1;
+        big.addAcquitance(typeOfDog, IdeaConnectionType.EXPLANATION);
+        small.addAcquitance(typeOfDog, IdeaConnectionType.EXPLANATION);
 
-        System.out.println(mainIdea);
+        Idea mainIdea = dogs;
+
+        return mainIdea;
     }
 }
