@@ -12,18 +12,13 @@ public class IdeaController {
         Set<Idea> ideas = new HashSet<>();
         ideas.add(masterIdea);
         ideas.addAll(masterIdea.getAcquaintances().keySet());
-        Set<Idea> ideaChildren = masterIdea.getChildren().keySet();
-        if (hasChildren(masterIdea)){
+        Set<Idea> ideaChildren = new HashSet<>(masterIdea.getChildren());
+        if (masterIdea.hasChildren()){
             for (Idea idea: ideaChildren) {
-                //ideas.addAll(idea.getAcquaintances().keySet());
                 ideas.addAll(extractUniqueIdeas(idea));
             }
         }
         return ideas;
-    }
-
-    private boolean hasChildren(Idea idea) {
-        return idea.getChildren().keySet().size() > 0;
     }
 
     public void addThought() {
