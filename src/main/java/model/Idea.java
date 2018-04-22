@@ -1,10 +1,7 @@
 package model;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The thought as a keyword expressing a fraction of a theme/subject.
@@ -116,6 +113,22 @@ public class Idea {
         return children;
     }
 
+    /**
+     *
+     * @return all Idea objects that are offsprings to this Idea object.
+     */
+    public Set<Idea> getFamily() {
+        Set<Idea> family = new HashSet<>();
+        family.add(this);
+        family.addAll(this.getAcquaintances().keySet());
+        if (this.hasChildren()) {
+            for (Idea idea : this.children) {
+                family.addAll(idea.getFamily());
+            }
+        }
+        return family;
+    }
+
     public Map<Idea, IdeaConnectionType> getAcquaintances() {
         return acquaintances;
     }
@@ -157,7 +170,7 @@ public class Idea {
 
         if (!children.isEmpty()) {
             for (Idea idea : children) {
-                string += spaces + idea.theme + ": " + idea; // recursion to get each child and its children in turn.
+                string += spaces + idea; // recursion to get each child and its children in turn.
             }
         }
         return string;
