@@ -21,7 +21,9 @@ import model.Bubble;
 import model.BubbleType;
 import model.Idea;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class Display extends Application {
@@ -34,6 +36,7 @@ public class Display extends Application {
 
     private double orgSceneX, orgSceneY;
     private double orgTranslateX, orgTranslateY;
+    private Map<Idea, Line> ideaLineMap = new HashMap<>();
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -47,6 +50,8 @@ public class Display extends Application {
         // Create shapes for progress testing.
         Idea masterIdea = new IdeaController().mindExample();
         Group root = generateIdeaGroup(masterIdea);
+
+        root.getChildren().addAll(ideaLineMap.values());
 
 
         Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT, SCENE_BACKGROUND);
@@ -78,6 +83,8 @@ public class Display extends Application {
         Pane pane = new StackPane();
         Text text = new Text(idea.getTheme());
         Shape shape = ideaToShape(idea);
+        Line line = new Line();
+        ideaLineMap.put(idea, line);
 
         text.setFill(getContrastColor((Color)shape.getFill()));
 
@@ -134,14 +141,18 @@ public class Display extends Application {
             Pane start = getThemePaneFromGroup(parent.getTheme(), ideaGroup);
             Pane end = getThemePaneFromGroup(childExample.getTheme(), ideaGroup);
 
-            System.out.println(childExample.getTheme());
+            Line line = ideaLineMap.get(idea);
 
             Bounds startBoundsInScene = start.localToScene(start.getBoundsInLocal());
             Bounds endBoundsInScene = end.localToScene(end.getBoundsInLocal());
 
-            Line line = new Line(startBoundsInScene.getMaxX(), startBoundsInScene.getMaxY(), endBoundsInScene.getMaxX(), endBoundsInScene.getMaxY());
+            line.setStartX(startBoundsInScene.getMinX() + startBoundsInScene.getWidth()/2);
+            line.setStartY(startBoundsInScene.getMinY());
+            line.setEndX(endBoundsInScene.getMinX() + startBoundsInScene.getWidth()/2);
+            line.setEndY(endBoundsInScene.getMinY());
 
-            ideaGroup.getChildren().add(line);
+            System.out.println(childExample.getTheme());
+            
         }
     }
 
