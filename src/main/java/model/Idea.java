@@ -1,8 +1,7 @@
 package model;
 
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The thought as a keyword expressing a fraction of a theme/subject.
@@ -15,8 +14,9 @@ public class Idea {
     private int id;
     private String theme;
     private Idea parent;
+    private IdeaConnectionType parentConnection = IdeaConnectionType.NONE;
     private int childLevel;
-    private Map<Idea, IdeaConnectionType> children;
+    private List<Idea> children;
     private Map<Idea, IdeaConnectionType> acquaintances;
     private boolean isMainIdea;
     private Bubble bubble;
@@ -30,7 +30,7 @@ public class Idea {
      * @param bubble instructions for displaying the Idea.
      */
     public Idea(String theme, boolean isMainIdea, Bubble bubble) {
-        children = new HashMap<>();
+        children = new ArrayList<>();
         acquaintances = new HashMap<>();
         this.id = numberOfIdeas;
         this.theme = theme;
@@ -50,38 +50,24 @@ public class Idea {
      * @param isMainIdea the central Idea of the mindmap
      */
     public Idea(String theme, boolean isMainIdea) {
-        children = new HashMap<>();
-        acquaintances = new HashMap<>();
-        this.id = numberOfIdeas;
-        this.theme = theme;
-        this.isMainIdea = isMainIdea;
-        if (isMainIdea) {
-            childLevel = 0;
-        } else {
-            childLevel = -1;
-        }
-        bubble = new Bubble();
-        numberOfIdeas++;
+        this(theme, isMainIdea, new Bubble());
     }
 
     public Idea(String theme) {
         this(theme, false);
     }
 
-    /**
-     * Adds  a child to the current Idea
-     * @param child as the Idea that branches off the current Idea (parent).
-     * @param connectionType specifies what connection the child should have to the parent Idea.
-     */
+
     public void addChild(Idea child, IdeaConnectionType connectionType) {
         child.setParent(this);
         child.childLevel = this.childLevel + 1;
-        children.put(child, connectionType);
+        child.parentConnection = connectionType;
+        children.add(child);
     }
 
     /**
-     * Adds a child to the current Idea with default IdeaConnectionType.BRANCH to its parent.
-     * @param child the Idea to be added to a parent.
+     * Adds  a child to the current Idea
+     * @param child as the Idea that branches off the current Idea (parent).
      */
     public void addChild(Idea child) {
         addChild(child, IdeaConnectionType.BRANCH);
@@ -123,8 +109,24 @@ public class Idea {
         return theme;
     }
 
-    public Map<Idea, IdeaConnectionType> getChildren() {
+    public List<Idea> getChildren() {
         return children;
+    }
+
+    /**
+     *
+     * @return all Idea objects that are offsprings to this Idea object.
+     */
+    public Set<Idea> getFamily() {
+        Set<Idea> family = new HashSet<>();
+        family.add(this);
+        family.addAll(this.getAcquaintances().keySet());
+        if (this.hasChildren()) {
+            for (Idea idea : this.children) {
+                family.addAll(idea.getFamily());
+            }
+        }
+        return family;
     }
 
     public Map<Idea, IdeaConnectionType> getAcquaintances() {
@@ -143,6 +145,14 @@ public class Idea {
         this.bubble = bubble;
     }
 
+    public void setParentConnection(IdeaConnectionType connectionType) {
+        parentConnection = connectionType;
+    }
+
+    public boolean hasChildren() {
+        return !children.isEmpty();
+    }
+
     @Override
     public String toString() {
         String string = theme + " <" + bubble.getType() + ">\n";
@@ -159,8 +169,8 @@ public class Idea {
         }
 
         if (!children.isEmpty()) {
-            for (Idea idea : children.keySet()) {
-                string += spaces + children.get(idea) + ": " + idea; // recursion to get each child and its children in turn.
+            for (Idea idea : children) {
+                string += spaces + idea; // recursion to get each child and its children in turn.
             }
         }
         return string;

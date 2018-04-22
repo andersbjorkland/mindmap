@@ -3,32 +3,7 @@ package controller;
 import model.Idea;
 import model.IdeaConnectionType;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class IdeaController {
-
-    public Set<Idea> extractUniqueIdeas(Idea masterIdea) {
-        Set<Idea> ideas = new HashSet<>();
-        ideas.add(masterIdea);
-        ideas.addAll(masterIdea.getAcquaintances().keySet());
-        Set<Idea> ideaChildren = masterIdea.getChildren().keySet();
-        if (hasChildren(masterIdea)){
-            for (Idea idea: ideaChildren) {
-                //ideas.addAll(idea.getAcquaintances().keySet());
-                ideas.addAll(extractUniqueIdeas(idea));
-            }
-        }
-        return ideas;
-    }
-
-    private boolean hasChildren(Idea idea) {
-        return idea.getChildren().keySet().size() > 0;
-    }
-
-    public void addThought() {
-
-    }
 
     /*
      * Example of how a mind can be structured.
