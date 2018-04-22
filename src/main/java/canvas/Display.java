@@ -1,5 +1,6 @@
 package canvas;
 
+import controller.IdeaController;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
@@ -16,6 +17,7 @@ import javafx.stage.Stage;
 import model.Bubble;
 import model.BubbleType;
 import model.Idea;
+
 
 public class Display extends Application {
     private static final double SCENE_WIDTH = 600.0;
@@ -38,18 +40,7 @@ public class Display extends Application {
         }
 
         // Create shapes for progress testing.
-        Bubble bubble = new Bubble(Color.DARKRED, BubbleType.ELLIPSE, 5,80, 20);
-        Idea idea = new Idea("Tester", true, bubble);
-        Pane pane = ideaToPane(idea);
-
-        Bubble anotherBubble = new Bubble(Color.RED, BubbleType.ELLIPSE, 3,40, 20);
-        Idea anotherIdea = new Idea("Tester child", false, anotherBubble);
-        Pane anotherPane = ideaToPane(anotherIdea);
-
-        idea.addChild(anotherIdea);
-
-        Group root = new Group();
-        root.getChildren().addAll(pane, anotherPane);
+        Group root = generateIdeaGroup(new IdeaController().mindExample());
 
         Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT, SCENE_BACKGROUND);
 
@@ -58,6 +49,14 @@ public class Display extends Application {
 
         primaryStage.setTitle("Mind Map");
         primaryStage.show();
+    }
+
+    public Group generateIdeaGroup(Idea masterIdea) {
+        Group group = new Group();
+        for (Idea idea : masterIdea.getFamily()) {
+            group.getChildren().add(ideaToPane(idea));
+        }
+        return group;
     }
 
     /**
