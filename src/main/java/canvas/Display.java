@@ -3,7 +3,9 @@ package canvas;
 import controller.IdeaController;
 import javafx.application.Application;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
@@ -11,12 +13,15 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import model.Bubble;
 import model.BubbleType;
 import model.Idea;
+
+import java.util.List;
 
 
 public class Display extends Application {
@@ -40,7 +45,9 @@ public class Display extends Application {
         }
 
         // Create shapes for progress testing.
-        Group root = generateIdeaGroup(new IdeaController().mindExample());
+        Idea masterIdea = new IdeaController().mindExample();
+        Group root = generateIdeaGroup(masterIdea);
+
 
         Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT, SCENE_BACKGROUND);
 
@@ -49,6 +56,9 @@ public class Display extends Application {
 
         primaryStage.setTitle("Mind Map");
         primaryStage.show();
+
+        root.setOnMouseClicked(event -> drawLineBetweenIdeaShapes(root, masterIdea));
+
     }
 
     public Group generateIdeaGroup(Idea masterIdea) {
@@ -74,7 +84,7 @@ public class Display extends Application {
         pane.getChildren().addAll(shape, text);
         pane.setOnMousePressed(paneOnMousePressedEventHandler);
         pane.setOnMouseDragged(paneOnMouseDraggedEventHandler);
-        pane.setOnMouseClicked(event -> System.out.println(idea));
+        pane.setOnMouseClicked(event -> drawLineBetweenIdeaShapes(((Group)pane.getParent()), idea));
         return pane;
     }
 
@@ -113,6 +123,47 @@ public class Display extends Application {
         }
 
         return shape;
+    }
+
+    private void drawLineBetweenIdeaShapes(Group ideaGroup, Idea idea) {
+        Idea parent = idea;
+        if (parent.hasChildren()) {
+            List<Idea> children = idea.getChildren();
+            Idea childExample = children.get(0);
+
+            Pane start = getThemePaneFromGroup(parent.getTheme(), ideaGroup);
+            Pane end = getThemePaneFromGroup(childExample.getTheme(), ideaGroup);
+
+            System.out.println(childExample.getTheme());
+
+            Bounds startBoundsInScene = start.localToScene(start.getBoundsInLocal());
+            Bounds endBoundsInScene = end.localToScene(end.getBoundsInLocal());
+
+            Line line = new Line(startBoundsInScene.getMaxX(), startBoundsInScene.getMaxY(), endBoundsInScene.getMaxX(), endBoundsInScene.getMaxY());
+
+            ideaGroup.getChildren().add(line);
+        }
+    }
+
+    private Pane getThemePaneFromGroup(String theme, Group group) {
+        Pane themePane = new Pane();
+
+        for (Node node : group.getChildren()) {
+            if (node instanceof Pane) {
+                Pane pane = (Pane) node;
+                for (Node paneNode : pane.getChildren()) {
+                    if (paneNode instanceof Text) {
+                        String text = ((Text)paneNode).getText();
+                        if (text.equals(theme)) {
+                            themePane = pane;
+                        }
+                    }
+                }
+
+            }
+        }
+
+        return themePane;
     }
 
     /**
@@ -168,7 +219,6 @@ public class Display extends Application {
 
             ((Pane)(event.getSource())).setTranslateX(newTranslateX);
             ((Pane)(event.getSource())).setTranslateY(newTranslateY);
-
         }
     };
 
