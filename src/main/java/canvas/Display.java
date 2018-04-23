@@ -62,7 +62,7 @@ public class Display extends Application {
         primaryStage.setTitle("Mind Map");
         primaryStage.show();
 
-        root.setOnMouseClicked(event -> drawLineBetweenIdeaShapes(root, masterIdea));
+        //root.setOnMouseClicked(event -> drawLineBetweenIdeaShapes(root, masterIdea));
 
     }
 
@@ -91,7 +91,7 @@ public class Display extends Application {
         pane.getChildren().addAll(shape, text);
         pane.setOnMousePressed(paneOnMousePressedEventHandler);
         pane.setOnMouseDragged(paneOnMouseDraggedEventHandler);
-        pane.setOnMouseClicked(event -> drawLineBetweenIdeaShapes(((Group)pane.getParent()), idea));
+        pane.setOnMouseClicked(event -> updateLines((Group)pane.getParent()));
         return pane;
     }
 
@@ -132,6 +132,12 @@ public class Display extends Application {
         return shape;
     }
 
+    private void updateLines(Group ideaGroup) {
+        for (Idea idea : ideaLineMap.keySet()) {
+            drawLineBetweenIdeaShapes(ideaGroup, idea);
+        }
+    }
+
     private void drawLineBetweenIdeaShapes(Group ideaGroup, Idea idea) {
         Idea parent = idea;
         if (parent.hasChildren()) {
@@ -146,12 +152,34 @@ public class Display extends Application {
             Bounds startBoundsInScene = start.localToScene(start.getBoundsInLocal());
             Bounds endBoundsInScene = end.localToScene(end.getBoundsInLocal());
 
-            line.setStartX(startBoundsInScene.getMinX() + startBoundsInScene.getWidth()/2);
-            line.setStartY(startBoundsInScene.getMinY());
-            line.setEndX(endBoundsInScene.getMinX() + startBoundsInScene.getWidth()/2);
-            line.setEndY(endBoundsInScene.getMinY());
+            // ADJUST START AND END DEPENDING ON WHERE THE SHAPES ARE IN RELATION TO EACH OTHER.
+            double startX = startBoundsInScene.getMinX() + startBoundsInScene.getWidth()/2;
+            double startY = startBoundsInScene.getMinY() + startBoundsInScene.getHeight()/2;
+            double endX = endBoundsInScene.getMinX() + endBoundsInScene.getWidth()/2;
+            double endY = endBoundsInScene.getMinY() + endBoundsInScene.getHeight()/2;
 
-            System.out.println(childExample.getTheme());
+            // START is to the left of END
+            if (startBoundsInScene.getMaxX() < endBoundsInScene.getMinX()) {
+                startX = startBoundsInScene.getMaxX();
+                endX = endBoundsInScene.getMinX();
+            } else if(startBoundsInScene.getMinX() > endBoundsInScene.getMaxX()) { // START is to the right of END
+                startX = startBoundsInScene.getMinX();
+                endX = endBoundsInScene.getMaxX();
+            } else {
+                // START is above the END
+                if (startBoundsInScene.getMaxY() < endBoundsInScene.getMinY()) {
+                    startY = startBoundsInScene.getMaxY();
+                    endY = endBoundsInScene.getMinY();
+                } else if (startBoundsInScene.getMinY() > endBoundsInScene.getMaxY()) { // START is below the END
+                    startY = startBoundsInScene.getMinY();
+                    endY = endBoundsInScene.getMaxY();
+                }
+            }
+
+            line.setStartX(startX);
+            line.setStartY(startY);
+            line.setEndX(endX);
+            line.setEndY(endY);
             
         }
     }
