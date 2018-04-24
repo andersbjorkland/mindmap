@@ -22,6 +22,7 @@ import model.Bubble;
 import model.BubbleType;
 import model.Idea;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,7 @@ public class Display extends Application {
         primaryStage.setTitle("Mind Map");
         primaryStage.show();
 
+
     }
 
     public Group generateIdeaGroup(Idea masterIdea) {
@@ -88,6 +90,7 @@ public class Display extends Application {
         pane.getChildren().addAll(shape, text);
         pane.setOnMousePressed(paneOnMousePressedEventHandler);
         pane.setOnMouseDragged(paneOnMouseDraggedEventHandler);
+        pane.setOnMouseClicked(event -> closeEmptySpace(pane));
         return pane;
     }
 
@@ -128,12 +131,69 @@ public class Display extends Application {
         return shape;
     }
 
-    private Point2D closeEmptySpace(Shape shape) {
+    private Point2D closeEmptySpace(Pane pane) {
         double x = 0;
         double y = 0;
+        List<Pane> shapePanes = extractShapePanesFromRootGroup();
+        System.out.println();
+        for (Pane shapePane : shapePanes) {
+            if (shapePane != pane && checkCollision(pane, shapePane)) {
+
+            }
+        }
 
         Point2D point = new Point2D(x, y);
         return point;
+    }
+
+    private void occupiedSpaceOnGeneration() {
+
+    }
+
+    private boolean checkCollision(Pane comparingPane, Pane comparedToPane) {
+        Bounds comparingPaneBounds = retrieveBoundsForPane(comparingPane);
+        Bounds comparedToBounds = retrieveBoundsForPane(comparedToPane);
+
+        return comparingPaneBounds.intersects(comparedToBounds);
+    }
+
+    private Bounds retrieveBoundsForPane(Pane pane) {
+        return pane.localToScene(pane.getBoundsInLocal());
+    }
+
+    private List<Pane> extractShapePanesFromRootGroup() {
+        List<Pane> panes = new ArrayList<>();
+        for (Node node : root.getChildren()) {
+            if (node instanceof Group) {
+                panes.addAll(extractPanesFromGroup((Group)node));
+            }
+        }
+
+        return panes;
+    }
+
+    private List<Pane> extractPanesFromGroup(Group group) {
+        List<Pane> panes = new ArrayList<>();
+
+        for (Node node : group.getChildren()) {
+            if (node instanceof Pane) {
+                panes.add((Pane)node);
+            }
+        }
+
+        return panes;
+    }
+
+    private Shape extractShapeFromPane(Pane pane) {
+        Shape shape = new Line();
+
+        for (Node node : pane.getChildren()) {
+            if (!(node instanceof Line) && node instanceof Shape) {
+                shape = (Shape)node;
+            }
+        }
+
+        return shape;
     }
 
     private void updateLines(Group ideaGroup) {
