@@ -4,6 +4,7 @@ import controller.IdeaController;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -37,6 +38,8 @@ public class Display extends Application {
     private double orgSceneX, orgSceneY;
     private double orgTranslateX, orgTranslateY;
     private Map<Idea, Line> ideaLineMap = new HashMap<>();
+    private Group root = new Group();
+    private Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT, SCENE_BACKGROUND);
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -49,20 +52,14 @@ public class Display extends Application {
 
         // Create shapes for progress testing.
         Idea masterIdea = new IdeaController().mindExample();
-        Group root = generateIdeaGroup(masterIdea);
-
+        root.getChildren().addAll(generateIdeaGroup(masterIdea));
         root.getChildren().addAll(ideaLineMap.values());
-
-
-        Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT, SCENE_BACKGROUND);
 
         primaryStage.setResizable(false);
         primaryStage.setScene(scene);
 
         primaryStage.setTitle("Mind Map");
         primaryStage.show();
-
-        //root.setOnMouseClicked(event -> drawLineBetweenIdeaShapes(root, masterIdea));
 
     }
 
@@ -91,7 +88,6 @@ public class Display extends Application {
         pane.getChildren().addAll(shape, text);
         pane.setOnMousePressed(paneOnMousePressedEventHandler);
         pane.setOnMouseDragged(paneOnMouseDraggedEventHandler);
-        pane.setOnMouseClicked(event -> updateLines((Group)pane.getParent()));
         return pane;
     }
 
@@ -130,6 +126,14 @@ public class Display extends Application {
         }
 
         return shape;
+    }
+
+    private Point2D closeEmptySpace(Shape shape) {
+        double x = 0;
+        double y = 0;
+
+        Point2D point = new Point2D(x, y);
+        return point;
     }
 
     private void updateLines(Group ideaGroup) {
@@ -258,6 +262,7 @@ public class Display extends Application {
 
             ((Pane)(event.getSource())).setTranslateX(newTranslateX);
             ((Pane)(event.getSource())).setTranslateY(newTranslateY);
+            updateLines((Group)(((Pane)event.getSource()).getParent()));
         }
     };
 
