@@ -3,6 +3,7 @@ package canvas;
 import controller.IdeaController;
 import javafx.application.Application;
 import javafx.event.EventHandler;
+import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -41,6 +42,8 @@ public class Display extends Application {
     private Map<Idea, Line> ideaLineMap = new HashMap<>();
     private Group root = new Group();
     private Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT, SCENE_BACKGROUND);
+    private Bounds generationBounds = new BoundingBox(0, 0, SCENE_WIDTH, SCENE_HEIGHT);
+    private PaneTrack track = new PaneTrack(SCENE_WIDTH, SCENE_HEIGHT);
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -63,6 +66,14 @@ public class Display extends Application {
         primaryStage.show();
 
 
+
+    }
+
+    private void updateTrack() {
+        track.cleanPaneTrack();
+        for (Pane pane : extractShapePanesFromRootGroup()) {
+            track.addOnPaneTrack(pane);
+        }
     }
 
     public Group generateIdeaGroup(Idea masterIdea) {
@@ -90,7 +101,11 @@ public class Display extends Application {
         pane.getChildren().addAll(shape, text);
         pane.setOnMousePressed(paneOnMousePressedEventHandler);
         pane.setOnMouseDragged(paneOnMouseDraggedEventHandler);
-        pane.setOnMouseClicked(event -> closeEmptySpace(pane));
+        pane.setOnMouseClicked(event -> {
+            updateTrack();
+            System.out.println(track.representTracks() + "\n");
+        });
+
         return pane;
     }
 
@@ -131,31 +146,14 @@ public class Display extends Application {
         return shape;
     }
 
-    private Point2D closeEmptySpace(Pane pane) {
-        double x = 0;
-        double y = 0;
-        List<Pane> shapePanes = extractShapePanesFromRootGroup();
-        System.out.println();
-        for (Pane shapePane : shapePanes) {
-            if (shapePane != pane && checkCollision(pane, shapePane)) {
 
-            }
-        }
+    private Point2D retrievePoint2DFromPane(Pane pane) {
+        double x = retrieveBoundsForPane(pane).getMinX();
+        double y = retrieveBoundsForPane(pane).getMinY();
 
-        Point2D point = new Point2D(x, y);
-        return point;
+        return new Point2D(x, y);
     }
 
-    private void occupiedSpaceOnGeneration() {
-
-    }
-
-    private boolean checkCollision(Pane comparingPane, Pane comparedToPane) {
-        Bounds comparingPaneBounds = retrieveBoundsForPane(comparingPane);
-        Bounds comparedToBounds = retrieveBoundsForPane(comparedToPane);
-
-        return comparingPaneBounds.intersects(comparedToBounds);
-    }
 
     private Bounds retrieveBoundsForPane(Pane pane) {
         return pane.localToScene(pane.getBoundsInLocal());
@@ -323,6 +321,7 @@ public class Display extends Application {
             ((Pane)(event.getSource())).setTranslateX(newTranslateX);
             ((Pane)(event.getSource())).setTranslateY(newTranslateY);
             updateLines((Group)(((Pane)event.getSource()).getParent()));
+
         }
     };
 
