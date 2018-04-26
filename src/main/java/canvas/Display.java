@@ -86,7 +86,7 @@ public class Display extends Application {
         // Policy is to start looking downwards from top center scene
         // then from left to right
         // in increments of pane height and width
-        double coordinateMinX = Math.floor((SCENE_WIDTH - bounds.getWidth()) / 2);
+        double coordinateMinX = (SCENE_WIDTH - bounds.getWidth()) / 2;
         double coordinateMinY = generationLevel * yIncrement;
         double coordinateMaxX = coordinateMinX + bounds.getWidth();
         double coordinateMaxY = coordinateMinY + bounds.getHeight();
@@ -94,22 +94,38 @@ public class Display extends Application {
 
 
         // test if area is free
+        int horizontalIncrements = 0;
         while ( (!track.isCoordinateAreaFree(coordinateMinX, coordinateMinY, coordinateMaxX, coordinateMaxY)) && coordinateMaxY < (SCENE_HEIGHT - bounds.getHeight()) ) {
 
-            if (!track.isCoordinateAreaFree(coordinateMinX, coordinateMinY, coordinateMaxX, coordinateMaxY)) {
 
-                // move from left to right in increments of bin-sizes
-                for (double x = 1; x <= (SCENE_WIDTH - bounds.getWidth()); x += xIncrement) {
-                    if (!track.isCoordinateAreaFree(coordinateMinX, coordinateMinY, coordinateMaxX, coordinateMaxY)) {
-                        coordinateMinX = x;
-                        coordinateMaxX = coordinateMinX + bounds.getWidth();
-                    }
+                // move from center to the edges in increments of bin-sizes
+            double x = (SCENE_WIDTH - bounds.getWidth()) / 2;
+            double leftX = x;
+            double rightX = x;
+            for (int i = 1; i <= PaneTrack.TRACK_RESOLUTION_X; i++) {
+                System.out.print(i + " ");
+
+                if (i % 2 == 0) {
+                    leftX -= xIncrement + 1;
+                    x = leftX;
+                } else {
+                    rightX += xIncrement - 1;
+                    x = rightX;
+                }
+                coordinateMinX = x;
+                coordinateMaxX = coordinateMinX + bounds.getWidth();
+
+                if (track.isCoordinateAreaFree(coordinateMinX, coordinateMinY, coordinateMaxX, coordinateMaxY)) {
+                    break;
                 }
             }
-
+            System.out.println();
             // move down one increment
-            coordinateMinY += yIncrement;
-            coordinateMaxY = coordinateMinY + bounds.getHeight();
+            if (horizontalIncrements != 0) {
+                coordinateMinY += yIncrement;
+                coordinateMaxY = coordinateMinY + bounds.getHeight();
+            }
+            horizontalIncrements++;
         }
 
         // if no space is available, don't move pane, so reset variables.
