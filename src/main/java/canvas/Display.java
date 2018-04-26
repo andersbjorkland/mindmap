@@ -69,6 +69,11 @@ public class Display extends Application {
 
     }
 
+    private void moveToFreeSpace(Pane pane) {
+        Bounds bounds = retrieveBoundsForPane(pane);
+
+    }
+
     private void updateTrack() {
         track.cleanPaneTrack();
         for (Pane pane : extractShapePanesFromRootGroup()) {

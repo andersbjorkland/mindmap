@@ -1,5 +1,6 @@
 package canvas;
 
+import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.layout.Pane;
 
@@ -54,10 +55,48 @@ public class PaneTrack {
         return  pane.localToScene(pane.getBoundsInLocal());
     }
 
+    public boolean isBinFree(int x, int y) {
+        return gridTrack[x][y] == PaneTrackStatus.FREE;
+    }
+
     public boolean isCoordinateFree(double xCoordinate, double yCoordinate) {
         int x = getHorizontalBinNumberForXCoorinate(xCoordinate);
         int y = getVerticalBinNumberForYCoorinate(yCoordinate);
         return gridTrack[x][y] == PaneTrackStatus.FREE;
+    }
+
+    public boolean isPaneAreaFree(Pane pane) {
+        Bounds bounds = retrievePaneBounds(pane);
+
+        int minX = getHorizontalBinNumberForXCoorinate(bounds.getMinX());
+        int maxX = getHorizontalBinNumberForXCoorinate(bounds.getMaxX());
+        int minY = getVerticalBinNumberForYCoorinate(bounds.getMinY());
+        int maxY = getVerticalBinNumberForYCoorinate(bounds.getMaxY());
+
+        return isBinAreaFree(minX, minY, maxX, maxY);
+    }
+
+    public boolean isCoordinateAreaFree(double minX, double minY, double width, double height) {
+
+        return false;
+    }
+
+    public boolean isBinAreaFree(int minX, int minY, int maxX, int maxY) {
+        boolean isPaneAreaFree = true;
+
+        int x = minX;
+        int y = minY;
+        while (isPaneAreaFree && x < maxX) {
+            while (isPaneAreaFree && y < maxY) {
+                if (!isBinFree(x, y)) {
+                    isPaneAreaFree = false;
+                }
+                y++;
+            }
+            x++;
+        }
+
+        return false;
     }
 
     private int getHorizontalBinSize() {
