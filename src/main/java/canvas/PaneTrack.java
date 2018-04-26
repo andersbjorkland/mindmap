@@ -92,6 +92,7 @@ public class PaneTrack {
                 y++;
             }
             x++;
+            y = minY;
         }
 
         return isBinAreaFree;
