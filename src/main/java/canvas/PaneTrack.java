@@ -1,6 +1,5 @@
 package canvas;
 
-import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.layout.Pane;
 
@@ -68,43 +67,42 @@ public class PaneTrack {
     public boolean isPaneAreaFree(Pane pane) {
         Bounds bounds = retrievePaneBounds(pane);
 
-        int minX = getHorizontalBinNumberForXCoorinate(bounds.getMinX());
-        int maxX = getHorizontalBinNumberForXCoorinate(bounds.getMaxX());
-        int minY = getVerticalBinNumberForYCoorinate(bounds.getMinY());
-        int maxY = getVerticalBinNumberForYCoorinate(bounds.getMaxY());
+        return isCoordinateAreaFree(bounds.getMinX(), bounds.getMinY(), bounds.getMaxX(), bounds.getMaxY());
+    }
+
+    public boolean isCoordinateAreaFree(double coordinateMinX, double coordinateMinY, double coordinateMaxX, double coordinateMaxY) {
+        int minX = getHorizontalBinNumberForXCoorinate(coordinateMinX);
+        int maxX = getHorizontalBinNumberForXCoorinate(coordinateMaxX);
+        int minY = getVerticalBinNumberForYCoorinate(coordinateMinY);
+        int maxY = getVerticalBinNumberForYCoorinate(coordinateMaxY);
 
         return isBinAreaFree(minX, minY, maxX, maxY);
     }
 
-    public boolean isCoordinateAreaFree(double minX, double minY, double width, double height) {
-
-        return false;
-    }
-
     public boolean isBinAreaFree(int minX, int minY, int maxX, int maxY) {
-        boolean isPaneAreaFree = true;
+        boolean isBinAreaFree = true;
 
         int x = minX;
         int y = minY;
-        while (isPaneAreaFree && x < maxX) {
-            while (isPaneAreaFree && y < maxY) {
+        while (isBinAreaFree && x < maxX) {
+            while (isBinAreaFree && y < maxY) {
                 if (!isBinFree(x, y)) {
-                    isPaneAreaFree = false;
+                    isBinAreaFree = false;
                 }
                 y++;
             }
             x++;
         }
 
-        return false;
+        return isBinAreaFree;
     }
 
-    private int getHorizontalBinSize() {
-        return (int)(trackedSceneWidth / TRACK_RESOLUTION_X);
+    public double getHorizontalBinSize() {
+        return (trackedSceneWidth / TRACK_RESOLUTION_X);
     }
 
-    private int getVerticalBinSize() {
-        return (int)(trackedSceneHeight / TRACK_RESOLUTION_Y);
+    public double getVerticalBinSize() {
+        return (trackedSceneHeight / TRACK_RESOLUTION_Y);
     }
 
     private int getHorizontalBinNumberForXCoorinate(double xCoordinate) {

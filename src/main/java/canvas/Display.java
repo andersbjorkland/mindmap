@@ -23,10 +23,7 @@ import model.Bubble;
 import model.BubbleType;
 import model.Idea;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class Display extends Application {
@@ -65,13 +62,67 @@ public class Display extends Application {
         primaryStage.setTitle("Mind Map");
         primaryStage.show();
 
-
+        moveListOfPanesToFreeSpace(extractShapePanesFromRootGroup());
 
     }
 
-    private void moveToFreeSpace(Pane pane) {
+    private void moveListOfPanesToFreeSpace(List<Pane> panes) {
+        for (Pane pane : panes) {
+            movePaneToFreeSpace(pane);
+        }
+    }
+
+    private void movePaneToFreeSpace(Pane pane) {
         Bounds bounds = retrieveBoundsForPane(pane);
 
+        int generationLevel = getIdeaFromPane(pane).getChildLevel();
+        if (generationLevel == -1) {
+            generationLevel = 4;
+        }
+
+        double xIncrement = track.getHorizontalBinSize();
+        double yIncrement = track.getVerticalBinSize() + 10;
+
+        // Policy is to start looking downwards from top center scene
+        // then from left to right
+        // in increments of pane height and width
+        double coordinateMinX = Math.floor((SCENE_WIDTH - bounds.getWidth()) / 2);
+        double coordinateMinY = generationLevel * yIncrement;
+        double coordinateMaxX = coordinateMinX + bounds.getWidth();
+        double coordinateMaxY = coordinateMinY + bounds.getHeight();
+
+
+
+        // test if area is free
+        while ( (!track.isCoordinateAreaFree(coordinateMinX, coordinateMinY, coordinateMaxX, coordinateMaxY)) && coordinateMaxY < (SCENE_HEIGHT - bounds.getHeight()) ) {
+
+            if (!track.isCoordinateAreaFree(coordinateMinX, coordinateMinY, coordinateMaxX, coordinateMaxY)) {
+
+                // move from left to right in increments of bin-sizes
+                for (double x = 1; x <= (SCENE_WIDTH - bounds.getWidth()); x += xIncrement) {
+                    if (!track.isCoordinateAreaFree(coordinateMinX, coordinateMinY, coordinateMaxX, coordinateMaxY)) {
+                        coordinateMinX = x;
+                        coordinateMaxX = coordinateMinX + bounds.getWidth();
+                    }
+                }
+            }
+
+            // move down one increment
+            coordinateMinY += yIncrement;
+            coordinateMaxY = coordinateMinY + bounds.getHeight();
+        }
+
+        // if no space is available, don't move pane, so reset variables.
+        if (!track.isCoordinateAreaFree(coordinateMinX, coordinateMinY, coordinateMaxX, coordinateMaxY)) {
+            System.out.println("DEFAULTING");
+            coordinateMinX = bounds.getMinX();
+            coordinateMinY = bounds.getMinY();
+        }
+
+        // now move the pane to the coordinates acquired.
+        pane.setTranslateX(coordinateMinX);
+        pane.setTranslateY(coordinateMinY);
+        updateTrack();
     }
 
     private void updateTrack() {
@@ -108,7 +159,6 @@ public class Display extends Application {
         pane.setOnMouseDragged(paneOnMouseDraggedEventHandler);
         pane.setOnMouseClicked(event -> {
             updateTrack();
-            System.out.println(track.representTracks() + "\n");
         });
 
         return pane;
@@ -249,6 +299,28 @@ public class Display extends Application {
             line.setEndY(endY);
             
         }
+    }
+
+    private Idea getIdeaFromPane(Pane shapePane) {
+        String theme = "";
+        for (Node node : shapePane.getChildren()) {
+            if (node instanceof Text) {
+                theme = ((Text)node).getText();
+            }
+        }
+
+        return getIdeaByTheme(theme);
+    }
+
+    private Idea getIdeaByTheme(String theme) {
+        Idea byTheme = null;
+        for (Idea idea : ideaLineMap.keySet()) {
+            if (idea.getTheme().contentEquals(theme)) {
+                byTheme = idea;
+                break;
+            }
+        }
+        return byTheme;
     }
 
     private Pane getThemePaneFromGroup(String theme, Group group) {
