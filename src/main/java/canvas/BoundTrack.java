@@ -3,41 +3,40 @@ package canvas;
 import javafx.geometry.Bounds;
 import javafx.scene.layout.Pane;
 
-public class PaneTrack {
+public class BoundTrack {
     static final int TRACK_RESOLUTION_X = 30;
     static final int TRACK_RESOLUTION_Y = 20;
-    private PaneTrackStatus[][] gridTrack = new PaneTrackStatus[TRACK_RESOLUTION_X][TRACK_RESOLUTION_Y];
-    private double trackedSceneWidth;
-    private double trackedSceneHeight;
+    private BoundTrackStatus[][] gridTrack = new BoundTrackStatus[TRACK_RESOLUTION_X][TRACK_RESOLUTION_Y];
+    private double trackedWidth;
+    private double trackedHeight;
 
-    public PaneTrack(double trackedSceneWidth, double trackedSceneHeight) {
+    public BoundTrack(double trackedWidth, double trackedHeight) {
         initializeStatusArray();
-        this.trackedSceneWidth = trackedSceneWidth;
-        this.trackedSceneHeight = trackedSceneHeight;
+        this.trackedWidth = trackedWidth;
+        this.trackedHeight = trackedHeight;
     }
 
     private void initializeStatusArray() {
         for (int x = 0; x < TRACK_RESOLUTION_X; x++) {
             for (int y = 0; y < TRACK_RESOLUTION_Y; y++) {
-                gridTrack[x][y] = PaneTrackStatus.FREE;
+                gridTrack[x][y] = BoundTrackStatus.FREE;
             }
         }
     }
 
-    public void cleanPaneTrack() {
+    public void cleanBoundsTrack() {
         initializeStatusArray();
     }
 
-    public void removePaneTrack(Pane pane) {
-        changePaneTrack(pane, PaneTrackStatus.FREE);
+    public void removeFromBoundsTrack(Bounds bounds) {
+        changeBoundsTrack(bounds, BoundTrackStatus.FREE);
     }
 
-    public void addOnPaneTrack(Pane pane) {
-        changePaneTrack(pane, PaneTrackStatus.OCCUPIED);
+    public void addOnBoundsTrack(Bounds bounds) {
+        changeBoundsTrack(bounds, BoundTrackStatus.OCCUPIED);
     }
 
-    private void changePaneTrack(Pane pane, PaneTrackStatus status) {
-        Bounds bounds = retrievePaneBounds(pane);
+    private void changeBoundsTrack(Bounds bounds, BoundTrackStatus status) {
         int minX = getHorizontalBinNumberForXCoorinate(bounds.getMinX());
         int maxX = getHorizontalBinNumberForXCoorinate(bounds.getMaxX());
         int minY = getVerticalBinNumberForYCoorinate(bounds.getMinY());
@@ -55,18 +54,16 @@ public class PaneTrack {
     }
 
     public boolean isBinFree(int x, int y) {
-        return gridTrack[x][y] == PaneTrackStatus.FREE;
+        return gridTrack[x][y] == BoundTrackStatus.FREE;
     }
 
     public boolean isCoordinateFree(double xCoordinate, double yCoordinate) {
         int x = getHorizontalBinNumberForXCoorinate(xCoordinate);
         int y = getVerticalBinNumberForYCoorinate(yCoordinate);
-        return gridTrack[x][y] == PaneTrackStatus.FREE;
+        return gridTrack[x][y] == BoundTrackStatus.FREE;
     }
 
-    public boolean isPaneAreaFree(Pane pane) {
-        Bounds bounds = retrievePaneBounds(pane);
-
+    public boolean isBoundAreaFree(Bounds bounds) {
         return isCoordinateAreaFree(bounds.getMinX(), bounds.getMinY(), bounds.getMaxX(), bounds.getMaxY());
     }
 
@@ -99,11 +96,11 @@ public class PaneTrack {
     }
 
     public double getHorizontalBinSize() {
-        return (trackedSceneWidth / TRACK_RESOLUTION_X);
+        return (trackedWidth / TRACK_RESOLUTION_X);
     }
 
     public double getVerticalBinSize() {
-        return (trackedSceneHeight / TRACK_RESOLUTION_Y);
+        return (trackedHeight / TRACK_RESOLUTION_Y);
     }
 
     private int getHorizontalBinNumberForXCoorinate(double xCoordinate) {
@@ -127,7 +124,7 @@ public class PaneTrack {
         String tracks = "";
         for (int y = 0; y < TRACK_RESOLUTION_Y; y++) {
             for (int x = 0; x < TRACK_RESOLUTION_X; x++) {
-                if  (gridTrack[x][y] == PaneTrackStatus.FREE) {
+                if  (gridTrack[x][y] == BoundTrackStatus.FREE) {
                     tracks += " - ";
                 } else {
                     tracks += " + ";

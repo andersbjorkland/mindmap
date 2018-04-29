@@ -40,7 +40,7 @@ public class Display extends Application {
     private Group root = new Group();
     private Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT, SCENE_BACKGROUND);
     private Bounds generationBounds = new BoundingBox(0, 0, SCENE_WIDTH, SCENE_HEIGHT);
-    private PaneTrack track = new PaneTrack(SCENE_WIDTH, SCENE_HEIGHT);
+    private BoundTrack track = new BoundTrack(SCENE_WIDTH, SCENE_HEIGHT);
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -102,7 +102,7 @@ public class Display extends Application {
             double x = (SCENE_WIDTH - bounds.getWidth()) / 2;
             double leftX = x;
             double rightX = x;
-            for (int i = 1; i <= PaneTrack.TRACK_RESOLUTION_X; i++) {
+            for (int i = 1; i <= BoundTrack.TRACK_RESOLUTION_X; i++) {
 
                 if (i % 2 == 0) {
                     leftX -= xIncrement + 1;
@@ -141,9 +141,9 @@ public class Display extends Application {
     }
 
     private void updateTrack() {
-        track.cleanPaneTrack();
+        track.cleanBoundsTrack();
         for (Pane pane : extractShapePanesFromRootGroup()) {
-            track.addOnPaneTrack(pane);
+            track.addOnBoundsTrack(retrieveBoundsForPane(pane));
         }
     }
 

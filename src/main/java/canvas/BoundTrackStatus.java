@@ -1,5 +1,5 @@
 package canvas;
 
-public enum PaneTrackStatus {
+public enum BoundTrackStatus {
     FREE, OCCUPIED;
 }
