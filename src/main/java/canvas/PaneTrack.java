@@ -4,7 +4,7 @@ import javafx.geometry.Bounds;
 import javafx.scene.layout.Pane;
 
 public class PaneTrack {
-    static final int TRACK_RESOLUTION_X = 20;
+    static final int TRACK_RESOLUTION_X = 30;
     static final int TRACK_RESOLUTION_Y = 20;
     private PaneTrackStatus[][] gridTrack = new PaneTrackStatus[TRACK_RESOLUTION_X][TRACK_RESOLUTION_Y];
     private double trackedSceneWidth;

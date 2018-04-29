@@ -27,7 +27,7 @@ import java.util.*;
 
 
 public class Display extends Application {
-    private static final double SCENE_WIDTH = 600.0;
+    private static final double SCENE_WIDTH = 800.0;
     private static final double SCENE_HEIGHT = 600.0;
     private static final Color SCENE_BACKGROUND = Color.LIGHTGRAY;
     private static final float SHAPE_SIZE = 50.0f;
@@ -103,7 +103,6 @@ public class Display extends Application {
             double leftX = x;
             double rightX = x;
             for (int i = 1; i <= PaneTrack.TRACK_RESOLUTION_X; i++) {
-                System.out.print(i + " ");
 
                 if (i % 2 == 0) {
                     leftX -= xIncrement + 1;
