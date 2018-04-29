@@ -12,21 +12,15 @@ import static org.junit.Assert.assertTrue;
 public class BoundTrackTest {
     private BoundTrack track;
     private Bounds bounds;
-    private double trackedWidth;
-    private double trackedHeight;
-    private double xCoordinate;
-    private double yCoordinate;
-    private double boundsWidth;
-    private double boundsHeight;
 
     @Before
     public void setUp() {
-        trackedWidth = 600;
-        trackedHeight = 600;
-        xCoordinate = 10;
-        yCoordinate = 10;
-        boundsWidth = 30;
-        boundsHeight = 20;
+        double trackedWidth = 600;
+        double trackedHeight = 600;
+        double xCoordinate = 10;
+        double yCoordinate = 10;
+        double boundsWidth = 30;
+        double boundsHeight = 20;
 
         track = new BoundTrack(trackedWidth, trackedHeight);
         bounds = new BoundingBox(xCoordinate, yCoordinate, boundsWidth, boundsHeight);
@@ -38,6 +32,7 @@ public class BoundTrackTest {
         boolean isFree = true;
         for (int x = 0; x < BoundTrack.TRACK_RESOLUTION_X; x++) {
             for (int y = 0; y < BoundTrack.TRACK_RESOLUTION_Y; y++) {
+                //isFree = track.isBinFree(x,y) ? isFree : false;
                 isFree = track.isBinFree(x,y) ? isFree : false;
             }
         }

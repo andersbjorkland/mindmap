@@ -1,16 +1,15 @@
 package canvas;
 
 import javafx.geometry.Bounds;
-import javafx.scene.layout.Pane;
 
-public class BoundTrack {
+class BoundTrack {
     static final int TRACK_RESOLUTION_X = 30;
     static final int TRACK_RESOLUTION_Y = 20;
     private BoundTrackStatus[][] gridTrack = new BoundTrackStatus[TRACK_RESOLUTION_X][TRACK_RESOLUTION_Y];
     private double trackedWidth;
     private double trackedHeight;
 
-    public BoundTrack(double trackedWidth, double trackedHeight) {
+    BoundTrack(double trackedWidth, double trackedHeight) {
         initializeStatusArray();
         this.trackedWidth = trackedWidth;
         this.trackedHeight = trackedHeight;
@@ -24,15 +23,15 @@ public class BoundTrack {
         }
     }
 
-    public void cleanBoundsTrack() {
+    void cleanBoundsTrack() {
         initializeStatusArray();
     }
 
-    public void removeFromBoundsTrack(Bounds bounds) {
+    void removeFromBoundsTrack(Bounds bounds) {
         changeBoundsTrack(bounds, BoundTrackStatus.FREE);
     }
 
-    public void addOnBoundsTrack(Bounds bounds) {
+    void addOnBoundsTrack(Bounds bounds) {
         changeBoundsTrack(bounds, BoundTrackStatus.OCCUPIED);
     }
 
@@ -49,21 +48,15 @@ public class BoundTrack {
         }
     }
 
-    public boolean isBinFree(int x, int y) {
+    boolean isBinFree(int x, int y) {
         return gridTrack[x][y] == BoundTrackStatus.FREE;
     }
 
-    public boolean isCoordinateFree(double xCoordinate, double yCoordinate) {
-        int x = getHorizontalBinNumberForXCoordinate(xCoordinate);
-        int y = getVerticalBinNumberForYCoordinate(yCoordinate);
-        return isBinFree(x, y);
-    }
-
-    public boolean isBoundAreaFree(Bounds bounds) {
+    boolean isBoundAreaFree(Bounds bounds) {
         return isCoordinateAreaFree(bounds.getMinX(), bounds.getMinY(), bounds.getMaxX(), bounds.getMaxY());
     }
 
-    public boolean isCoordinateAreaFree(double coordinateMinX, double coordinateMinY, double coordinateMaxX, double coordinateMaxY) {
+    boolean isCoordinateAreaFree(double coordinateMinX, double coordinateMinY, double coordinateMaxX, double coordinateMaxY) {
         int minX = getHorizontalBinNumberForXCoordinate(coordinateMinX);
         int maxX = getHorizontalBinNumberForXCoordinate(coordinateMaxX);
         int minY = getVerticalBinNumberForYCoordinate(coordinateMinY);
@@ -72,7 +65,7 @@ public class BoundTrack {
         return isBinAreaFree(minX, minY, maxX, maxY);
     }
 
-    public boolean isBinAreaFree(int minX, int minY, int maxX, int maxY) {
+    private boolean isBinAreaFree(int minX, int minY, int maxX, int maxY) {
         boolean isBinAreaFree = true;
 
         int x = minX;
