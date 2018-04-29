@@ -1,5 +1,5 @@
 package model;
 
 public enum BubbleType {
-    ELLIPSE, QUADRANT, CLOUD, SPIKY
+    ELLIPSE, RECTANGLE, CLOUD, SPIKY
 }

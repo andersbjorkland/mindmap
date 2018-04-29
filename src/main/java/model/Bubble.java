@@ -1,6 +1,9 @@
 package model;
 
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Ellipse;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 
 /**
  * Instructions for the shape of thought bubble in the mind map,
@@ -13,7 +16,7 @@ public class Bubble {
     private int sizeX;
     private int sizeY;
 
-    public Bubble(Color color, BubbleType type, int lineThickness, int sizeX, int sizeY) {
+    Bubble(Color color, BubbleType type, int lineThickness, int sizeX, int sizeY) {
         this.color = color;
         this.type = type;
         this.lineThickness = lineThickness;
@@ -21,7 +24,7 @@ public class Bubble {
         this.sizeY = sizeY;
     }
 
-    public Bubble(Color color, BubbleType type, int sizeX, int sizeY) {
+    Bubble(Color color, BubbleType type, int sizeX, int sizeY) {
         this(color, type, 2, sizeX, sizeY);
     }
 
@@ -34,12 +37,29 @@ public class Bubble {
         this(Color.BLACK, BubbleType.ELLIPSE, sizeX, sizeY);
     }
 
-    public Bubble() {
+    Bubble() {
         color = Color.BLACK;
         type = BubbleType.ELLIPSE;
         lineThickness = 2;
         sizeX = 10;
         sizeY = 8;
+    }
+
+    public Shape getShape() {
+        Shape shape;
+
+        switch (type) {
+            case ELLIPSE:   shape = new Ellipse(sizeX, sizeY);
+                            break;
+            case RECTANGLE: shape = new Rectangle(sizeX, sizeY);
+                            break;
+            default: shape = new Ellipse(sizeX, sizeY);
+        }
+
+        shape.setStroke(color);
+        shape.setStrokeWidth(lineThickness);
+        shape.setFill(Color.WHITE);
+        return shape;
     }
 
     public Color getColor() {

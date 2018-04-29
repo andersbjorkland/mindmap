@@ -1,5 +1,7 @@
 package controller;
 
+import javafx.scene.paint.Color;
+import model.Bubble;
 import model.Idea;
 import model.IdeaConnectionType;
 
@@ -11,6 +13,9 @@ public class IdeaController {
     public Idea mindExample() {
 
         Idea dogs = new Idea("Dogs", true);
+        dogs.getBubble().setColor(Color.RED);
+        dogs.getBubble().setLineThickness(5);
+
         Idea big = new Idea("Big");
         Idea small = new Idea("Small");
         Idea greyhound = new Idea("Greyhound");

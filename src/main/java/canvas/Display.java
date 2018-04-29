@@ -179,16 +179,11 @@ public class Display extends Application {
         return pane;
     }
 
-    /**
+    /*
      * Takes an Idea and generates a Shape according to instructions from the Ideas Bubble-object.
-     * @param idea contains instructions to generate a Shape
-     * @return a subclass-object of the Shape class.
      */
-    public Shape ideaToShape(Idea idea) {
-        Shape shape = new Ellipse(SHAPE_SIZE, SHAPE_SIZE * ELLIPSE_RATIO);
+    private Shape ideaToShape(Idea idea) {
         Bubble bubble = idea.getBubble();
-        BubbleType shapeType = bubble.getType();
-
         float width = bubble.getSizeX();
         float height = bubble.getSizeY();
 
@@ -203,15 +198,10 @@ public class Display extends Application {
             height = textHeight + 2;
         }
 
-        shape.setStrokeWidth(bubble.getLineThickness());
-        shape.setStroke(bubble.getColor());
-        shape.setFill(SHAPE_FILL);
+        bubble.setSizeX((int) width);
+        bubble.setSizeY((int) height);
 
-        switch (shapeType) {
-            case ELLIPSE:   ((Ellipse)shape).setRadiusX(width);
-                            ((Ellipse)shape).setRadiusY(height);
-                            break;
-        }
+        Shape shape = bubble.getShape();
 
         return shape;
     }
