@@ -37,10 +37,10 @@ public class BoundTrack {
     }
 
     private void changeBoundsTrack(Bounds bounds, BoundTrackStatus status) {
-        int minX = getHorizontalBinNumberForXCoorinate(bounds.getMinX());
-        int maxX = getHorizontalBinNumberForXCoorinate(bounds.getMaxX());
-        int minY = getVerticalBinNumberForYCoorinate(bounds.getMinY());
-        int maxY = getVerticalBinNumberForYCoorinate(bounds.getMaxY());
+        int minX = getHorizontalBinNumberForXCoordinate(bounds.getMinX());
+        int maxX = getHorizontalBinNumberForXCoordinate(bounds.getMaxX());
+        int minY = getVerticalBinNumberForYCoordinate(bounds.getMinY());
+        int maxY = getVerticalBinNumberForYCoordinate(bounds.getMaxY());
 
         for (int x = minX; x < maxX; x++) {
             for (int y = minY; y < maxY; y++) {
@@ -49,18 +49,14 @@ public class BoundTrack {
         }
     }
 
-    private Bounds retrievePaneBounds(Pane pane) {
-        return  pane.localToScene(pane.getBoundsInLocal());
-    }
-
     public boolean isBinFree(int x, int y) {
         return gridTrack[x][y] == BoundTrackStatus.FREE;
     }
 
     public boolean isCoordinateFree(double xCoordinate, double yCoordinate) {
-        int x = getHorizontalBinNumberForXCoorinate(xCoordinate);
-        int y = getVerticalBinNumberForYCoorinate(yCoordinate);
-        return gridTrack[x][y] == BoundTrackStatus.FREE;
+        int x = getHorizontalBinNumberForXCoordinate(xCoordinate);
+        int y = getVerticalBinNumberForYCoordinate(yCoordinate);
+        return isBinFree(x, y);
     }
 
     public boolean isBoundAreaFree(Bounds bounds) {
@@ -68,10 +64,10 @@ public class BoundTrack {
     }
 
     public boolean isCoordinateAreaFree(double coordinateMinX, double coordinateMinY, double coordinateMaxX, double coordinateMaxY) {
-        int minX = getHorizontalBinNumberForXCoorinate(coordinateMinX);
-        int maxX = getHorizontalBinNumberForXCoorinate(coordinateMaxX);
-        int minY = getVerticalBinNumberForYCoorinate(coordinateMinY);
-        int maxY = getVerticalBinNumberForYCoorinate(coordinateMaxY);
+        int minX = getHorizontalBinNumberForXCoordinate(coordinateMinX);
+        int maxX = getHorizontalBinNumberForXCoordinate(coordinateMaxX);
+        int minY = getVerticalBinNumberForYCoordinate(coordinateMinY);
+        int maxY = getVerticalBinNumberForYCoordinate(coordinateMaxY);
 
         return isBinAreaFree(minX, minY, maxX, maxY);
     }
@@ -95,43 +91,21 @@ public class BoundTrack {
         return isBinAreaFree;
     }
 
-    public double getHorizontalBinSize() {
+    double getHorizontalBinSize() {
         return (trackedWidth / TRACK_RESOLUTION_X);
     }
 
-    public double getVerticalBinSize() {
+    double getVerticalBinSize() {
         return (trackedHeight / TRACK_RESOLUTION_Y);
     }
 
-    private int getHorizontalBinNumberForXCoorinate(double xCoordinate) {
+    int getHorizontalBinNumberForXCoordinate(double xCoordinate) {
         return (int) (xCoordinate / getHorizontalBinSize());
     }
 
-    private int getVerticalBinNumberForYCoorinate(double yCoordinate) {
+    int getVerticalBinNumberForYCoordinate(double yCoordinate) {
         return (int) (yCoordinate / getVerticalBinSize());
     }
 
-    public String representTrackOnPane(Pane pane) {
-        Bounds bounds = retrievePaneBounds(pane);
-        String trackPaneString = "Coordinates: [" + bounds.getMinX() + ":" + bounds.getMinY() + "]\n" +
-                "Bins: [" + getHorizontalBinNumberForXCoorinate(bounds.getMinX()) + ":" +
-                getVerticalBinNumberForYCoorinate(bounds.getMinY()) + "]";
 
-        return trackPaneString;
-    }
-
-    public String representTracks() {
-        String tracks = "";
-        for (int y = 0; y < TRACK_RESOLUTION_Y; y++) {
-            for (int x = 0; x < TRACK_RESOLUTION_X; x++) {
-                if  (gridTrack[x][y] == BoundTrackStatus.FREE) {
-                    tracks += " - ";
-                } else {
-                    tracks += " + ";
-                }
-            }
-            tracks += "\n";
-        }
-        return tracks;
-    }
 }
