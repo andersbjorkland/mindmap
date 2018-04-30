@@ -8,8 +8,7 @@ import java.util.Set;
  */
 public class ConsoleDisplay {
     public static void main(String[] args) {
-        IdeaController ideaController = new IdeaController();
-        Idea idea = ideaController.mindExample();
+        Idea idea = IdeaController.mindExample();
 
         System.out.println("Correct representation: ");
         System.out.println(idea + "\n");
