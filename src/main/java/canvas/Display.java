@@ -53,7 +53,8 @@ public class Display extends Application {
 
         // Create shapes for progress testing.
         Idea masterIdea = new IdeaController().mindExample();
-        root.getChildren().addAll(generateIdeaGroup(masterIdea));
+        Group ideaGroup = generateIdeaGroup(masterIdea);
+        root.getChildren().addAll(ideaGroup);
         root.getChildren().addAll(ideaLineMap.values());
 
         primaryStage.setResizable(false);
@@ -63,6 +64,7 @@ public class Display extends Application {
         primaryStage.show();
 
         moveListOfPanesToFreeSpace(extractShapePanesFromRootGroup());
+        updateLines(ideaGroup);
 
     }
 
@@ -206,15 +208,6 @@ public class Display extends Application {
         return shape;
     }
 
-
-    private Point2D retrievePoint2DFromPane(Pane pane) {
-        double x = retrieveBoundsForPane(pane).getMinX();
-        double y = retrieveBoundsForPane(pane).getMinY();
-
-        return new Point2D(x, y);
-    }
-
-
     private Bounds retrieveBoundsForPane(Pane pane) {
         return pane.localToScene(pane.getBoundsInLocal());
     }
@@ -242,18 +235,6 @@ public class Display extends Application {
         return panes;
     }
 
-    private Shape extractShapeFromPane(Pane pane) {
-        Shape shape = new Line();
-
-        for (Node node : pane.getChildren()) {
-            if (!(node instanceof Line) && node instanceof Shape) {
-                shape = (Shape)node;
-            }
-        }
-
-        return shape;
-    }
-
     private void updateLines(Group ideaGroup) {
         for (Idea idea : ideaLineMap.keySet()) {
             drawLineBetweenIdeaShapes(ideaGroup, idea);
@@ -264,45 +245,47 @@ public class Display extends Application {
         Idea parent = idea;
         if (parent.hasChildren()) {
             List<Idea> children = idea.getChildren();
-            Idea childExample = children.get(0);
 
             Pane start = getThemePaneFromGroup(parent.getTheme(), ideaGroup);
-            Pane end = getThemePaneFromGroup(childExample.getTheme(), ideaGroup);
 
-            Line line = ideaLineMap.get(idea);
+            for (Idea child : children) {
 
-            Bounds startBoundsInScene = start.localToScene(start.getBoundsInLocal());
-            Bounds endBoundsInScene = end.localToScene(end.getBoundsInLocal());
+                Pane end = getThemePaneFromGroup(child.getTheme(), ideaGroup);
 
-            // ADJUST START AND END DEPENDING ON WHERE THE SHAPES ARE IN RELATION TO EACH OTHER.
-            double startX = startBoundsInScene.getMinX() + startBoundsInScene.getWidth()/2;
-            double startY = startBoundsInScene.getMinY() + startBoundsInScene.getHeight()/2;
-            double endX = endBoundsInScene.getMinX() + endBoundsInScene.getWidth()/2;
-            double endY = endBoundsInScene.getMinY() + endBoundsInScene.getHeight()/2;
+                Line line = ideaLineMap.get(child);
 
-            // START is to the left of END
-            if (startBoundsInScene.getMaxX() < endBoundsInScene.getMinX()) {
-                startX = startBoundsInScene.getMaxX();
-                endX = endBoundsInScene.getMinX();
-            } else if(startBoundsInScene.getMinX() > endBoundsInScene.getMaxX()) { // START is to the right of END
-                startX = startBoundsInScene.getMinX();
-                endX = endBoundsInScene.getMaxX();
-            } else {
-                // START is above the END
-                if (startBoundsInScene.getMaxY() < endBoundsInScene.getMinY()) {
-                    startY = startBoundsInScene.getMaxY();
-                    endY = endBoundsInScene.getMinY();
-                } else if (startBoundsInScene.getMinY() > endBoundsInScene.getMaxY()) { // START is below the END
-                    startY = startBoundsInScene.getMinY();
-                    endY = endBoundsInScene.getMaxY();
+                Bounds startBoundsInScene = start.localToScene(start.getBoundsInLocal());
+                Bounds endBoundsInScene = end.localToScene(end.getBoundsInLocal());
+
+                // ADJUST START AND END DEPENDING ON WHERE THE SHAPES ARE IN RELATION TO EACH OTHER.
+                double startX = startBoundsInScene.getMinX() + startBoundsInScene.getWidth() / 2;
+                double startY = startBoundsInScene.getMinY() + startBoundsInScene.getHeight() / 2;
+                double endX = endBoundsInScene.getMinX() + endBoundsInScene.getWidth() / 2;
+                double endY = endBoundsInScene.getMinY() + endBoundsInScene.getHeight() / 2;
+
+                // START is to the left of END
+                if (startBoundsInScene.getMaxX() < endBoundsInScene.getMinX()) {
+                    startX = startBoundsInScene.getMaxX();
+                    endX = endBoundsInScene.getMinX();
+                } else if (startBoundsInScene.getMinX() > endBoundsInScene.getMaxX()) { // START is to the right of END
+                    startX = startBoundsInScene.getMinX();
+                    endX = endBoundsInScene.getMaxX();
+                } else {
+                    // START is above the END
+                    if (startBoundsInScene.getMaxY() < endBoundsInScene.getMinY()) {
+                        startY = startBoundsInScene.getMaxY();
+                        endY = endBoundsInScene.getMinY();
+                    } else if (startBoundsInScene.getMinY() > endBoundsInScene.getMaxY()) { // START is below the END
+                        startY = startBoundsInScene.getMinY();
+                        endY = endBoundsInScene.getMaxY();
+                    }
                 }
-            }
 
-            line.setStartX(startX);
-            line.setStartY(startY);
-            line.setEndX(endX);
-            line.setEndY(endY);
-            
+                line.setStartX(startX);
+                line.setStartY(startY);
+                line.setEndX(endX);
+                line.setEndY(endY);
+            }
         }
     }
 

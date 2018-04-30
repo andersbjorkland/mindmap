@@ -55,11 +55,13 @@ public class Idea {
 
     public Idea(String theme) {
         this(theme, false);
+
     }
 
 
     public void addChild(Idea child, IdeaConnectionType connectionType) {
         child.setParent(this);
+        child.getBubble().setColor(this.getBubble().getColor());
         child.childLevel = this.childLevel + 1;
         child.parentConnection = connectionType;
         children.add(child);
