@@ -7,6 +7,9 @@ import model.IdeaConnectionType;
 
 public class IdeaController {
 
+
+
+
     /*
      * Example of how a mind can be structured.
      */
@@ -23,7 +26,7 @@ public class IdeaController {
 
         Idea small = new Idea("Small");
         dogs.addChild(small, IdeaConnectionType.BRANCH);
-        small.getBubble().setColor(Color.DEEPPINK);
+        small.getBubble().setColor(Color.DARKGREEN);
 
         Idea greyhound = new Idea("Greyhound");
         big.addChild(greyhound, IdeaConnectionType.BRANCH);

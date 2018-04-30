@@ -5,7 +5,6 @@ import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
-import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -14,13 +13,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import model.Bubble;
-import model.BubbleType;
 import model.Idea;
 
 import java.util.*;
@@ -30,16 +27,12 @@ public class Display extends Application {
     private static final double SCENE_WIDTH = 800.0;
     private static final double SCENE_HEIGHT = 600.0;
     private static final Color SCENE_BACKGROUND = Color.LIGHTGRAY;
-    private static final float SHAPE_SIZE = 50.0f;
-    private static final Color SHAPE_FILL = new Color(1.0, 1.0, 1.0, 0.7);
-    private static final float ELLIPSE_RATIO = 0.8f; // height to width ratio
 
     private double orgSceneX, orgSceneY;
     private double orgTranslateX, orgTranslateY;
     private Map<Idea, Line> ideaLineMap = new HashMap<>();
     private Group root = new Group();
     private Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT, SCENE_BACKGROUND);
-    private Bounds generationBounds = new BoundingBox(0, 0, SCENE_WIDTH, SCENE_HEIGHT);
     private BoundTrack track = new BoundTrack(SCENE_WIDTH, SCENE_HEIGHT);
 
     @Override
