@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -31,6 +32,16 @@ public class Display extends Application {
         root.getChildren().addAll(ideaGroup);
         root.getChildren().addAll(controller.getLines());
 
+        // will contain options list
+        scene.setOnMouseClicked(event -> {
+            double sceneX = event.getSceneX();
+            double sceneY = event.getSceneY();
+
+            MouseButton button = event.getButton();
+            if (button == MouseButton.SECONDARY) {
+                controller.createThoughtAt(sceneX, sceneY);
+            }
+        });
 
         primaryStage.setResizable(false);
         primaryStage.setScene(scene);

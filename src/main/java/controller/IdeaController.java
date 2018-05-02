@@ -6,6 +6,8 @@ import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -342,6 +344,45 @@ public class IdeaController {
             }
         }
         return byTheme;
+    }
+
+    public void createThoughtAt(double x, double y) {
+        String theme;
+        Idea idea;
+
+        // on right click, open a dialog to take text; the theme for Idea
+        double width = 280;
+        Dialog dialog = new TextInputDialog();
+        dialog.setX(x + width);
+        dialog.setY(y + 60);
+        dialog.setHeaderText("");
+        dialog.setTitle("Add an idea");
+        dialog.setContentText("Enter an idea:");
+        Optional<String> result = dialog.showAndWait();
+        if (result.isPresent() && result.get().length() > 0) {
+            theme = result.get();
+            idea = new Idea(theme);
+            Pane pane = ideaToPane(idea);
+            pane.setTranslateX(x);
+            pane.setTranslateY(y);
+            ideaGroup.getChildren().addAll(pane);
+        }
+
+
+        // create the Idea with the info of a theme
+
+        // create a basic Bubble (Ellipse shape)
+
+        // add options upon right clicking the Bubble;
+        // shape, color, sizes
+
+        // add options upon right clicking to remove, create child or update
+
+    }
+
+    private Idea dialogToCreateIdea() {
+
+        return null;
     }
 
     /*
