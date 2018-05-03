@@ -6,8 +6,8 @@ import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -60,7 +60,6 @@ public class IdeaController {
         pane.getChildren().addAll(shape, text);
         pane.setOnMousePressed(paneOnMousePressedEventHandler);
         pane.setOnMouseDragged(paneOnMouseDraggedEventHandler);
-        pane.setOnMouseClicked(event -> updateTrack());
 
         return pane;
     }
@@ -132,12 +131,55 @@ public class IdeaController {
     private EventHandler<MouseEvent> paneOnMousePressedEventHandler = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event) {
-            orgSceneX = event.getSceneX();
-            orgSceneY = event.getSceneY();
-            orgTranslateX = ((Pane)(event.getSource())).getTranslateX();
-            orgTranslateY = ((Pane)(event.getSource())).getTranslateY();
+            if (event.getButton() == MouseButton.SECONDARY) {
+                options(event);
+            } else {
+                orgSceneX = event.getSceneX();
+                orgSceneY = event.getSceneY();
+                orgTranslateX = ((Pane) (event.getSource())).getTranslateX();
+                orgTranslateY = ((Pane) (event.getSource())).getTranslateY();
+            }
         }
     };
+
+    public void options(MouseEvent event) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation Dialog with Custom Actions");
+        alert.setHeaderText("Look, a Confirmation Dialog with Custom Actions");
+        alert.setContentText("Choose your option.");
+
+        ButtonType buttonCreate = new ButtonType("Create");
+        ButtonType buttonSetParent = new ButtonType("Set Parent");
+        ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        if (event.getSource() instanceof Scene) {
+            alert.getButtonTypes().setAll(buttonCreate, buttonTypeCancel);
+        } else {
+            alert.getButtonTypes().setAll(buttonSetParent, buttonTypeCancel);
+        }
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == buttonCreate) {
+            optionCreate(event);
+        } else if (result.get() == buttonSetParent) {
+            optionSetParent(event);
+        } else {
+            // ... user chose CANCEL or closed the dialog
+        }
+    }
+
+    private void optionCreate(MouseEvent event) {
+        double sceneX = event.getSceneX();
+        double sceneY = event.getSceneY();
+
+        optionCreateThoughtAt(sceneX, sceneY);
+    }
+
+    private void optionSetParent(MouseEvent event) {
+        Pane pane = (Pane) event.getSource();
+        System.out.println("SET");
+        optionSetParent(pane);
+    }
 
     private EventHandler<MouseEvent> paneOnMouseDraggedEventHandler = new EventHandler<MouseEvent>() {
         @Override
@@ -346,7 +388,7 @@ public class IdeaController {
         return byTheme;
     }
 
-    public void createThoughtAt(double x, double y) {
+    public void optionCreateThoughtAt(double x, double y) {
         String theme;
         Idea idea;
 
@@ -359,19 +401,19 @@ public class IdeaController {
         dialog.setTitle("Add an idea");
         dialog.setContentText("Enter an idea:");
         Optional<String> result = dialog.showAndWait();
+
+        // create the Idea with the info of a theme
+        // create a basic Bubble (Ellipse shape)
         if (result.isPresent() && result.get().length() > 0) {
             theme = result.get();
             idea = new Idea(theme);
+            Line line = new Line();
+            ideaLineMap.put(idea, line);
             Pane pane = ideaToPane(idea);
             pane.setTranslateX(x);
             pane.setTranslateY(y);
             ideaGroup.getChildren().addAll(pane);
         }
-
-
-        // create the Idea with the info of a theme
-
-        // create a basic Bubble (Ellipse shape)
 
         // add options upon right clicking the Bubble;
         // shape, color, sizes
@@ -380,9 +422,15 @@ public class IdeaController {
 
     }
 
-    private Idea dialogToCreateIdea() {
+    public void optionSetParent(Pane pane) {
+        Idea child = getIdeaFromPane(pane);
+        Idea parent = selectParent();
+        child.setParent(parent);
+        updateLines(ideaGroup);
+    }
 
-        return null;
+    private Idea selectParent() {
+        return ideaLineMap.keySet().iterator().next();
     }
 
     /*

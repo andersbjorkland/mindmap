@@ -3,11 +3,19 @@ package canvas;
 import controller.IdeaController;
 import javafx.application.Application;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+
+import java.util.Optional;
 
 public class Display extends Application {
     private static final double SCENE_WIDTH = 800.0;
@@ -27,21 +35,19 @@ public class Display extends Application {
         }
 
         IdeaController controller = new IdeaController(scene);
+
         // Create shapes for progress testing.
         Group ideaGroup = controller.generateIdeaGroup(IdeaController.mindExample());
+
         root.getChildren().addAll(ideaGroup);
         root.getChildren().addAll(controller.getLines());
 
         // will contain options list
         scene.setOnMouseClicked(event -> {
-            double sceneX = event.getSceneX();
-            double sceneY = event.getSceneY();
-
-            MouseButton button = event.getButton();
-            if (button == MouseButton.SECONDARY) {
-                controller.createThoughtAt(sceneX, sceneY);
-            }
+            if (event.getButton() == MouseButton.SECONDARY)
+                controller.options(event);
         });
+
 
         primaryStage.setResizable(false);
         primaryStage.setScene(scene);
@@ -53,5 +59,4 @@ public class Display extends Application {
         controller.updateLines(ideaGroup);
 
     }
-
 }
