@@ -16,6 +16,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import model.Bubble;
+import model.BubbleType;
 import model.Idea;
 import model.IdeaConnectionType;
 
@@ -440,7 +441,8 @@ public class IdeaController {
 
         Idea dogs = new Idea("Dogs", true);
         dogs.getBubble().setColor(Color.RED);
-        dogs.getBubble().setLineThickness(5);
+        dogs.getBubble().setLineThickness(2);
+        dogs.getBubble().setType(BubbleType.CLOUD);
 
         Idea big = new Idea("Big");
         dogs.addChild(big, IdeaConnectionType.BRANCH);

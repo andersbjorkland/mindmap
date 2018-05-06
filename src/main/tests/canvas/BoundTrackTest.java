@@ -32,7 +32,6 @@ public class BoundTrackTest {
         boolean isFree = true;
         for (int x = 0; x < BoundTrack.TRACK_RESOLUTION_X; x++) {
             for (int y = 0; y < BoundTrack.TRACK_RESOLUTION_Y; y++) {
-                //isFree = track.isBinFree(x,y) ? isFree : false;
                 isFree = track.isBinFree(x,y) ? isFree : false;
             }
         }

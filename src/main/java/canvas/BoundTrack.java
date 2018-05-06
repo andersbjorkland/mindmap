@@ -43,12 +43,34 @@ public class BoundTrack {
 
         for (int x = minX; x < maxX; x++) {
             for (int y = minY; y < maxY; y++) {
+                if (x < 0) {
+                    x = 0;
+                } else if (x >= TRACK_RESOLUTION_X) {
+                    x = TRACK_RESOLUTION_X - 1;
+                }
+
+                if (y < 0) {
+                    y = 0;
+                } else if (y >= TRACK_RESOLUTION_Y) {
+                    y = TRACK_RESOLUTION_Y - 1;
+                }
                 gridTrack[x][y] = status;
             }
         }
     }
 
     public boolean isBinFree(int x, int y) {
+        if (x < 0) {
+            x = 0;
+        } else if (x >= TRACK_RESOLUTION_X) {
+            x = TRACK_RESOLUTION_X - 1;
+        }
+
+        if (y < 0) {
+            y = 0;
+        } else if (y >= TRACK_RESOLUTION_Y) {
+            y = TRACK_RESOLUTION_Y - 1;
+        }
         return gridTrack[x][y] == BoundTrackStatus.FREE;
     }
 
