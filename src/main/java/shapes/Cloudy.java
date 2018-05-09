@@ -26,40 +26,26 @@ public class Cloudy {
 
     private static Shape defineCloud(double width, double height) {
 
-        // width = height / sinV
+         double cloudPartThickness = height * 0.4;
 
-        Shape cloud = new Ellipse(width, height * 0.6);
-        Shape cloud2 = new Ellipse(width, height * 0.6);
+        Shape cloud = new Ellipse(width, cloudPartThickness);
+        Shape cloudAt45 = new Ellipse((height+width)/2.7, cloudPartThickness);
+        Shape cloudAt90 = new Ellipse(height, cloudPartThickness);
+        Shape cloudAt135 = new Ellipse((height+width)/2.7, cloudPartThickness);
+        Shape cloudAt25 = new Ellipse((height+width)/2, cloudPartThickness);
+        Shape cloudAt165 = new Ellipse((height+width)/2, cloudPartThickness);
 
+        cloudAt45.setRotate(45);
+        cloudAt90.setRotate(90);
+        cloudAt135.setRotate(135);
+        cloudAt25.setRotate(25);
+        cloudAt165.setRotate(155);
 
-        int numberOfEllipses = 8;
-        double rotateByDegreeIncrement = 180 / numberOfEllipses;
-        double degree;
-        double ellipseWidth = width;
-        double ellipseHeight = height * 0.4;
-        /*
-
-        for (int i = 1; i < numberOfEllipses; i++) {
-            degree = rotateByDegreeIncrement * i;
-
-            // width / sin V = height
-            if (width / Math.sin(Math.toRadians(degree)) > height) {
-                ellipseWidth = height / Math.sin(Math.toRadians(degree));
-            } else {
-                ellipseWidth = width;
-            }
-
-            Shape rotateShape = new Ellipse(ellipseWidth, ellipseHeight);
-            rotateShape.setRotate(degree);
-            cloud = Shape.union(cloud, rotateShape);
-        }
-        */
-
-        cloud2.setRotate(90);
-        cloud = Shape.union(cloud, cloud2);
-        Shape cloud3 = Shape.union(cloud, cloud2);
-        cloud3.setRotate(45);
-        cloud = Shape.union(cloud, cloud3);
+        cloud = Shape.union(cloud, cloudAt25);
+        cloud = Shape.union(cloud, cloudAt45);
+        cloud = Shape.union(cloud, cloudAt90);
+        cloud = Shape.union(cloud, cloudAt135);
+        cloud = Shape.union(cloud, cloudAt165);
 
         //cloud.setScaleY(0.6);
         return cloud;
