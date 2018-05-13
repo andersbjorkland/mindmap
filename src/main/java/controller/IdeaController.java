@@ -473,6 +473,7 @@ public class IdeaController {
         big.addChild(goldenRetriever, IdeaConnectionType.BRANCH);
 
         goldenRetriever.getBubble().setType(BubbleType.CLOUD);
+        chihuahua.getBubble().setType(BubbleType.SPIKY);
 
         Idea a = new Idea("Happiness");
         dogs.addChild(a, IdeaConnectionType.POINT);

@@ -5,6 +5,7 @@ import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import shapes.Cloudy;
+import shapes.Spiky;
 
 /**
  * Instructions for the shape of thought bubble in the mind map,
@@ -55,6 +56,8 @@ public class Bubble {
             case RECTANGLE: shape = new Rectangle(sizeX, sizeY);
                             break;
             case CLOUD:     shape = Cloudy.getShape(sizeX, sizeY);
+                            break;
+            case SPIKY:     shape = Spiky.getShape(sizeX, sizeY);
                             break;
             default: shape = new Ellipse(sizeX, sizeY);
         }
