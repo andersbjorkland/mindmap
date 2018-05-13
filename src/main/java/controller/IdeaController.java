@@ -442,7 +442,7 @@ public class IdeaController {
         Idea dogs = new Idea("Dogs", true);
         dogs.getBubble().setColor(Color.RED);
         dogs.getBubble().setLineThickness(2);
-        dogs.getBubble().setType(BubbleType.CLOUD);
+        dogs.getBubble().setType(BubbleType.ELLIPSE);
 
         Idea big = new Idea("Big");
         dogs.addChild(big, IdeaConnectionType.BRANCH);
@@ -472,6 +472,7 @@ public class IdeaController {
         Idea goldenRetriever = new Idea("Golden Retriever");
         big.addChild(goldenRetriever, IdeaConnectionType.BRANCH);
 
+        goldenRetriever.getBubble().setType(BubbleType.CLOUD);
 
         Idea a = new Idea("Happiness");
         dogs.addChild(a, IdeaConnectionType.POINT);
