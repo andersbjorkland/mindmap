@@ -1,7 +1,6 @@
 package shapes;
 
 import javafx.scene.shape.Polygon;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 
 public class Spiky {
@@ -13,61 +12,39 @@ public class Spiky {
     }
 
     private static Shape defineSpike(double width, double height) {
+        // add padding
+        width *= 1.4;
+        height *= 1.5;
 
-        double cloudPartThickness = height * 0.5;
+        double widthAt30And150 = widthAtAngleOfEllipse(30, width, height) * 1.3;
 
-        double widthAt45And135 = widthAtAngleOfEllipse(45, width, height);
-        double widthAt90 = height;
-        double widthAt25And165 = widthAtAngleOfEllipse(25, width, height);
-        double widthAt12And168 = widthAtAngleOfEllipse(12, width, height);
-        double widthAt6And174 = widthAtAngleOfEllipse(6, width, height);
+        Double[] diamondPoints = new Double[]{
+                0.0, height / 2,        //W
+                width / 2, 0.0,         //N
+                width, height / 2,      //E
+                width / 2, height       //S
+        };
+        Polygon diamond = new Polygon();
+        diamond.getPoints().addAll(diamondPoints);
 
-        Polygon spike = new Polygon();
-        spike.getPoints().addAll(new Double[]{
-            0.0, height/2,
-            width/2, 0.0,
-            width, height/2,
-            width/2, height
-        });
+        Double[] polyPointsToBeRotated = new Double[] {
+                (width - widthAt30And150)/2, height/2,
+                widthAt30And150/2 + (width - widthAt30And150)/2, 0.0,
+                widthAt30And150 + (width - widthAt30And150)/2, height/2,
+                widthAt30And150/2 +(width - widthAt30And150)/2, height
+        };
+        Polygon diamondAt45Degrees = new Polygon();
+        diamondAt45Degrees.getPoints().addAll(polyPointsToBeRotated);
+        diamondAt45Degrees.setRotate(30);
 
-        double rotatedHeight = Math.sqrt(Math.pow(50, 2) + Math.pow(50, 2));
+        Polygon diamondAt135Degrees = new Polygon();
+        diamondAt135Degrees.getPoints().addAll(polyPointsToBeRotated);
+        diamondAt135Degrees.setRotate(150);
 
-        //spike.setScaleX(width / rotatedHeight);
-        //spike.setScaleY(height / rotatedHeight);
+        Shape diamonds = Shape.union(diamondAt45Degrees, diamondAt135Degrees);
 
-        /*
-        Shape cloudAt45 = new Ellipse(widthAt45And135, cloudPartThickness);
-        Shape cloudAt90 = new Ellipse(widthAt90, widthAt90);
-        Shape cloudAt135 = new Ellipse(widthAt45And135, cloudPartThickness);
-        Shape cloudAt25 = new Ellipse(widthAt25And165, cloudPartThickness);
-        Shape cloudAt165 = new Ellipse(widthAt25And165, cloudPartThickness*1.2);
-        Shape cloudAt12 = new Ellipse(widthAt12And168, cloudPartThickness*1.2);
-        Shape cloudAt168 = new Ellipse(widthAt12And168, cloudPartThickness*1.2);
-        Shape cloudAt6 = new Ellipse(widthAt6And174, cloudPartThickness*1.2);
-        Shape cloudAt174 = new Ellipse(widthAt6And174, cloudPartThickness*1.2);
 
-        cloudAt45.setRotate(45);
-        cloudAt90.setRotate(90);
-        cloudAt135.setRotate(135);
-        cloudAt25.setRotate(25);
-        cloudAt165.setRotate(155);
-        cloudAt12.setRotate(12);
-        cloudAt168.setRotate(168);
-        cloudAt6.setRotate(6);
-        cloudAt174.setRotate(174);
-
-        cloud = Shape.union(cloud, cloudAt12);
-        cloud = Shape.union(cloud, cloudAt25);
-        cloud = Shape.union(cloud, cloudAt45);
-        cloud = Shape.union(cloud, cloudAt90);
-        cloud = Shape.union(cloud, cloudAt135);
-        cloud = Shape.union(cloud, cloudAt165);
-        cloud = Shape.union(cloud, cloudAt168);
-        cloud = Shape.union(cloud, cloudAt6);
-        cloud = Shape.union(cloud, cloudAt174);
-
-        */
-        return spike;
+        return Shape.union(diamond, diamonds);
     }
 
     private static double widthAtAngleOfEllipse(double angle, double width, double height) {
