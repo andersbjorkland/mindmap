@@ -16,7 +16,7 @@ public class Idea {
     private Idea parent;
     private IdeaConnectionType parentConnection = IdeaConnectionType.NONE;
     private int childLevel;
-    private List<Idea> children;
+    private Set<Idea> children;
     private Map<Idea, IdeaConnectionType> acquaintances;
     private boolean isMainIdea;
     private Bubble bubble;
@@ -30,7 +30,7 @@ public class Idea {
      * @param bubble instructions for displaying the Idea.
      */
     public Idea(String theme, boolean isMainIdea, Bubble bubble) {
-        children = new ArrayList<>();
+        children = new HashSet<>();
         acquaintances = new HashMap<>();
         this.id = numberOfIdeas;
         this.theme = theme;
@@ -75,7 +75,7 @@ public class Idea {
         addChild(child, IdeaConnectionType.BRANCH);
     }
 
-    public void addAcquitance(Idea idea, IdeaConnectionType connectionType) {
+    public void addAcquaintance(Idea idea, IdeaConnectionType connectionType) {
         acquaintances.put(idea, connectionType);
     }
 
@@ -111,7 +111,7 @@ public class Idea {
         return theme;
     }
 
-    public List<Idea> getChildren() {
+    public Set<Idea> getChildren() {
         return children;
     }
 

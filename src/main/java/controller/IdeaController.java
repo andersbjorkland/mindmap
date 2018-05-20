@@ -29,6 +29,7 @@ public class IdeaController {
     private double orgSceneX, orgSceneY;
     private double orgTranslateX, orgTranslateY;
     private Map<Idea, Line> ideaLineMap = new HashMap<>();
+    private Map<Idea, Map<Idea, Line>> acquaintanceLineMap = new HashMap<>();
     private Group ideaGroup = new Group();
 
     // State of manipulation
@@ -59,6 +60,14 @@ public class IdeaController {
         Shape shape = ideaToShape(idea);
         Line line = new Line();
         ideaLineMap.put(idea, line);
+
+        Map<Idea, Line> lineMap = new HashMap<>();
+        for (Idea acquaintance : idea.getAcquaintances().keySet()) {
+            Line aLine = new Line();
+            lineMap.put(acquaintance, aLine);
+            ((Group)scene.getRoot()).getChildren().add(aLine);
+        }
+        acquaintanceLineMap.put(idea, lineMap);
 
         text.setFill(getContrastColor((Color)shape.getFill()));
 
@@ -134,6 +143,7 @@ public class IdeaController {
     }
 
     // Movable object, credit to this tutorial: http://java-buddy.blogspot.se/2013/07/javafx-drag-and-move-something.html
+
     // Now with movable stack.
     private EventHandler<MouseEvent> paneOnMousePressedEventHandler = new EventHandler<MouseEvent>() {
         @Override
@@ -148,7 +158,6 @@ public class IdeaController {
             }
         }
     };
-
     public void options(MouseEvent event) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirmation Dialog with Custom Actions");
@@ -156,9 +165,15 @@ public class IdeaController {
         alert.setContentText("Choose your option.");
 
         ButtonType buttonCreate = new ButtonType("Create");
+        ButtonType buttonCreateChild = new ButtonType("Create a child");
         ButtonType buttonSetParent = new ButtonType("Set Parent");
+        ButtonType buttonSetAsParent = new ButtonType("Set as Parent");
+        ButtonType buttonSetShape = new ButtonType("Choose a Shape");
+        ButtonType buttonSetShapeColor = new ButtonType("Choose Shape Color");
+        ButtonType buttonSetConnection  = new ButtonType("Choose Parent Relation");
+        ButtonType buttonSetAcquaintance = new ButtonType("Add an Acquaintance Connection");
+        ButtonType buttonSetAsAcquaintance = new ButtonType("Set as an Acquaintance Connection");
         ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-        ButtonType buttonSetAsParent = new ButtonType("Set As Parent");
 
         if (event.getSource() instanceof Scene) {
             alert.getButtonTypes().setAll(buttonCreate, buttonTypeCancel);
@@ -167,6 +182,8 @@ public class IdeaController {
                 alert.getButtonTypes().setAll(buttonSetParent, buttonTypeCancel);
             } else if (selectionState == SelectionState.SELECT_PARENT) {
                 alert.getButtonTypes().setAll(buttonSetAsParent, buttonTypeCancel);
+            } else if (selectionState == SelectionState.SELECT_ACQUAINTANCE) {
+                alert.getButtonTypes().setAll(buttonSetAsAcquaintance, buttonTypeCancel);
             }
         }
 
@@ -177,6 +194,10 @@ public class IdeaController {
             optionSetParent(event);
         } else if (result.get() == buttonSetAsParent) {
             selectAsParent(event);
+        } else if (result.get() == buttonSetAcquaintance) {
+
+        } else if (result.get() == buttonSetAsAcquaintance) {
+
         }
     }
 
@@ -189,8 +210,9 @@ public class IdeaController {
 
     private void optionSetParent(MouseEvent event) {
         Pane pane = (Pane) event.getSource();
-        System.out.println("SET");
-        optionSetParent(pane);
+        Idea child = getIdeaFromPane(pane);
+        manipulatedIdea = child;
+        selectionState = SelectionState.SELECT_PARENT;
     }
 
     private EventHandler<MouseEvent> paneOnMouseDraggedEventHandler = new EventHandler<MouseEvent>() {
@@ -230,13 +252,14 @@ public class IdeaController {
     public void updateLines(Group ideaGroup) {
         for (Idea idea : ideaLineMap.keySet()) {
             drawLineBetweenIdeaShapes(ideaGroup, idea);
+            drawAcquaintanceLines(idea);
         }
     }
 
     private void drawLineBetweenIdeaShapes(Group ideaGroup, Idea idea) {
         Idea parent = idea;
         if (parent.hasChildren()) {
-            List<Idea> children = idea.getChildren();
+            Set<Idea> children = parent.getChildren();
 
             Pane start = getThemePaneFromGroup(parent.getTheme(), ideaGroup);
 
@@ -245,6 +268,54 @@ public class IdeaController {
                 Pane end = getThemePaneFromGroup(child.getTheme(), ideaGroup);
 
                 Line line = ideaLineMap.get(child);
+
+                Bounds startBoundsInScene = start.localToScene(start.getBoundsInLocal());
+                Bounds endBoundsInScene = end.localToScene(end.getBoundsInLocal());
+
+                // ADJUST START AND END DEPENDING ON WHERE THE SHAPES ARE IN RELATION TO EACH OTHER.
+                double startX = startBoundsInScene.getMinX() + startBoundsInScene.getWidth() / 2;
+                double startY = startBoundsInScene.getMinY() + startBoundsInScene.getHeight() / 2;
+                double endX = endBoundsInScene.getMinX() + endBoundsInScene.getWidth() / 2;
+                double endY = endBoundsInScene.getMinY() + endBoundsInScene.getHeight() / 2;
+
+                // START is to the left of END
+                if (startBoundsInScene.getMaxX() < endBoundsInScene.getMinX()) {
+                    startX = startBoundsInScene.getMaxX();
+                    endX = endBoundsInScene.getMinX();
+                } else if (startBoundsInScene.getMinX() > endBoundsInScene.getMaxX()) { // START is to the right of END
+                    startX = startBoundsInScene.getMinX();
+                    endX = endBoundsInScene.getMaxX();
+                } else {
+                    // START is above the END
+                    if (startBoundsInScene.getMaxY() < endBoundsInScene.getMinY()) {
+                        startY = startBoundsInScene.getMaxY();
+                        endY = endBoundsInScene.getMinY();
+                    } else if (startBoundsInScene.getMinY() > endBoundsInScene.getMaxY()) { // START is below the END
+                        startY = startBoundsInScene.getMinY();
+                        endY = endBoundsInScene.getMaxY();
+                    }
+                }
+
+                line.setStartX(startX);
+                line.setStartY(startY);
+                line.setEndX(endX);
+                line.setEndY(endY);
+            }
+        }
+    }
+
+    private void drawAcquaintanceLines(Idea idea) {
+        if (idea.getAcquaintances().size() > 0) {
+            Map<Idea, IdeaConnectionType> children = idea.getAcquaintances();
+
+            Pane start = getThemePaneFromGroup(idea.getTheme(), ideaGroup);
+
+            for (Idea acquaintance : idea.getAcquaintances().keySet()) {
+
+                Pane end = getThemePaneFromGroup(acquaintance.getTheme(), ideaGroup);
+
+                Line line = acquaintanceLineMap.get(idea).get(acquaintance);
+                line.getStrokeDashArray().addAll(5.0, 5.0);
 
                 Bounds startBoundsInScene = start.localToScene(start.getBoundsInLocal());
                 Bounds endBoundsInScene = end.localToScene(end.getBoundsInLocal());
@@ -440,25 +511,16 @@ public class IdeaController {
 
     }
 
-    public void optionSetParent(Pane pane) {
-        Idea child = getIdeaFromPane(pane);
-        System.out.println("THIS: " + child.getTheme());
-        manipulatedIdea = child;
-        selectionState = SelectionState.SELECT_PARENT;
-        /*
-        System.out.println("Prospected parent: " + parent.getTheme() + "\n");
-        parent.addChild(child);
-        System.out.println(child.getTheme() + " now has parent: " + child.getParent().getTheme());
-        updateLines(ideaGroup);
-        */
-    }
-
-    public void selectAsParent(MouseEvent event) {
+    private void selectAsParent(MouseEvent event) {
 
         Pane pane = (Pane) event.getSource();
         Idea parent = getIdeaFromPane(pane);
-        parent.addChild(manipulatedIdea);
-
+        if (parent != manipulatedIdea) {
+            // remove child from set of children of the previous parent
+            if (manipulatedIdea.hasParent())
+                manipulatedIdea.getParent().getChildren().remove(manipulatedIdea);
+            parent.addChild(manipulatedIdea);
+        }
         selectionState = SelectionState.NONE;
         manipulatedIdea = null;
         updateLines(ideaGroup);
@@ -490,11 +552,11 @@ public class IdeaController {
         small.addChild(chihuahua, IdeaConnectionType.BRANCH);
 
         Idea cute = new Idea("Cute");
-        chihuahua.addAcquitance(cute, IdeaConnectionType.EXPLANATION);
+        chihuahua.addAcquaintance(cute, IdeaConnectionType.EXPLANATION);
 
         Idea typeOfDog = new Idea("Type of dog");
-        big.addAcquitance(typeOfDog, IdeaConnectionType.EXPLANATION);
-        small.addAcquitance(typeOfDog, IdeaConnectionType.EXPLANATION);
+        big.addAcquaintance(typeOfDog, IdeaConnectionType.EXPLANATION);
+        small.addAcquaintance(typeOfDog, IdeaConnectionType.EXPLANATION);
 
         Idea terrier = new Idea("Terrier");
         small.addChild(terrier, IdeaConnectionType.BRANCH);
