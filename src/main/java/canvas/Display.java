@@ -33,7 +33,7 @@ public class Display extends Application {
         Group ideaGroup = controller.generateIdeaGroup(IdeaController.mindExample());
 
         root.getChildren().addAll(ideaGroup);
-        root.getChildren().addAll(controller.getLines());
+        //root.getChildren().addAll(controller.getLines());
 
         // will contain options list
         scene.setOnMouseClicked(event -> {

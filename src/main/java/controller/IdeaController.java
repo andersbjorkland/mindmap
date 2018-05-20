@@ -62,6 +62,8 @@ public class IdeaController {
         pane.setOnMousePressed(paneOnMousePressedEventHandler);
         pane.setOnMouseDragged(paneOnMouseDraggedEventHandler);
 
+        //((Group)scene.getRoot()).getChildren().addAll(pane);
+        ((Group)scene.getRoot()).getChildren().add(line);
         return pane;
     }
 
@@ -407,13 +409,15 @@ public class IdeaController {
         // create a basic Bubble (Ellipse shape)
         if (result.isPresent() && result.get().length() > 0) {
             theme = result.get();
-            idea = new Idea(theme);
-            Line line = new Line();
-            ideaLineMap.put(idea, line);
-            Pane pane = ideaToPane(idea);
-            pane.setTranslateX(x);
-            pane.setTranslateY(y);
-            ideaGroup.getChildren().addAll(pane);
+            if (getIdeaByTheme(theme) == null) {
+                idea = new Idea(theme);
+                Pane pane = ideaToPane(idea);
+                pane.setTranslateX(x);
+                pane.setTranslateY(y);
+                ideaGroup.getChildren().add(pane);
+            } else {
+                System.out.println("Already exists!\n");
+            }
         }
 
         // add options upon right clicking the Bubble;
@@ -425,8 +429,11 @@ public class IdeaController {
 
     public void optionSetParent(Pane pane) {
         Idea child = getIdeaFromPane(pane);
+        System.out.println("THIS: " + child.getTheme());
         Idea parent = selectParent();
-        child.setParent(parent);
+        System.out.println("Prospected parent: " + parent.getTheme() + "\n");
+        parent.addChild(child);
+        System.out.println(child.getTheme() + " now has parent: " + child.getParent().getTheme());
         updateLines(ideaGroup);
     }
 
