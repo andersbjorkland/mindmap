@@ -31,6 +31,10 @@ public class IdeaController {
     private Map<Idea, Line> ideaLineMap = new HashMap<>();
     private Group ideaGroup = new Group();
 
+    // State of manipulation
+    private SelectionState selectionState = SelectionState.NONE;
+    private Idea manipulatedIdea;
+
     public IdeaController(Scene scene) {
         this.scene = scene;
         track = new BoundTrack(scene.getWidth(), scene.getHeight());
@@ -154,11 +158,16 @@ public class IdeaController {
         ButtonType buttonCreate = new ButtonType("Create");
         ButtonType buttonSetParent = new ButtonType("Set Parent");
         ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType buttonSetAsParent = new ButtonType("Set As Parent");
 
         if (event.getSource() instanceof Scene) {
             alert.getButtonTypes().setAll(buttonCreate, buttonTypeCancel);
         } else {
-            alert.getButtonTypes().setAll(buttonSetParent, buttonTypeCancel);
+            if (selectionState == SelectionState.NONE) {
+                alert.getButtonTypes().setAll(buttonSetParent, buttonTypeCancel);
+            } else if (selectionState == SelectionState.SELECT_PARENT) {
+                alert.getButtonTypes().setAll(buttonSetAsParent, buttonTypeCancel);
+            }
         }
 
         Optional<ButtonType> result = alert.showAndWait();
@@ -166,8 +175,8 @@ public class IdeaController {
             optionCreate(event);
         } else if (result.get() == buttonSetParent) {
             optionSetParent(event);
-        } else {
-            // ... user chose CANCEL or closed the dialog
+        } else if (result.get() == buttonSetAsParent) {
+            selectAsParent(event);
         }
     }
 
@@ -391,6 +400,10 @@ public class IdeaController {
         return byTheme;
     }
 
+    public SelectionState getSelectionState() {
+        return selectionState;
+    }
+
     public void optionCreateThoughtAt(double x, double y) {
         String theme;
         Idea idea;
@@ -430,15 +443,25 @@ public class IdeaController {
     public void optionSetParent(Pane pane) {
         Idea child = getIdeaFromPane(pane);
         System.out.println("THIS: " + child.getTheme());
-        Idea parent = selectParent();
+        manipulatedIdea = child;
+        selectionState = SelectionState.SELECT_PARENT;
+        /*
         System.out.println("Prospected parent: " + parent.getTheme() + "\n");
         parent.addChild(child);
         System.out.println(child.getTheme() + " now has parent: " + child.getParent().getTheme());
         updateLines(ideaGroup);
+        */
     }
 
-    private Idea selectParent() {
-        return ideaLineMap.keySet().iterator().next();
+    public void selectAsParent(MouseEvent event) {
+
+        Pane pane = (Pane) event.getSource();
+        Idea parent = getIdeaFromPane(pane);
+        parent.addChild(manipulatedIdea);
+
+        selectionState = SelectionState.NONE;
+        manipulatedIdea = null;
+        updateLines(ideaGroup);
     }
 
     /*

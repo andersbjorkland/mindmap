@@ -1,6 +1,7 @@
 package canvas;
 
 import controller.IdeaController;
+import controller.SelectionState;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -37,8 +38,9 @@ public class Display extends Application {
 
         // will contain options list
         scene.setOnMouseClicked(event -> {
-            if (event.getButton() == MouseButton.SECONDARY)
+            if (event.getButton() == MouseButton.SECONDARY) {
                 controller.options(event);
+            }
         });
 
 
