@@ -88,7 +88,30 @@ public class Idea {
     }
 
     public boolean hasParent() {
-        return childLevel > 0;
+        System.out.println("hasParent is called.");
+        return parent != null;
+    }
+
+    public boolean hasThisChild(Idea idea) {
+        boolean hasThisChild = false;
+        for (Idea child : children) {
+            if (child == idea) {
+                hasThisChild = true;
+                break;
+            }
+        }
+        return hasThisChild;
+    }
+
+    public boolean hasThisAcquaintance(Idea idea) {
+        boolean hasThisAcquaintance = false;
+        for (Idea acquaintance : acquaintances.keySet()) {
+            if (acquaintance == idea) {
+                hasThisAcquaintance = true;
+                break;
+            }
+        }
+        return hasThisAcquaintance;
     }
 
     public int getChildLevel() {
@@ -153,6 +176,15 @@ public class Idea {
 
     public boolean hasChildren() {
         return !children.isEmpty();
+    }
+
+    public void removeChild(Idea child) {
+        child.setParent(null);
+        children.remove(child);
+    }
+
+    public void removeAcquaintance(Idea acquaintance) {
+        acquaintances.remove(acquaintance);
     }
 
     @Override

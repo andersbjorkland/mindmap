@@ -173,17 +173,21 @@ public class IdeaController {
         ButtonType buttonSetConnection  = new ButtonType("Choose Parent Relation");
         ButtonType buttonSetAcquaintance = new ButtonType("Add an Acquaintance Connection");
         ButtonType buttonSetAsAcquaintance = new ButtonType("Set as an Acquaintance Connection");
+        ButtonType buttonRemoveAConnection = new ButtonType("Remove connection");
+        ButtonType buttonRemoveThisConnection = new ButtonType("Remove connection");
         ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
 
         if (event.getSource() instanceof Scene) {
             alert.getButtonTypes().setAll(buttonCreate, buttonTypeCancel);
         } else {
             if (selectionState == SelectionState.NONE) {
-                alert.getButtonTypes().setAll(buttonSetParent, buttonSetAcquaintance, buttonTypeCancel);
+                alert.getButtonTypes().setAll(buttonSetParent, buttonSetAcquaintance, buttonRemoveAConnection, buttonTypeCancel);
             } else if (selectionState == SelectionState.SELECT_PARENT) {
                 alert.getButtonTypes().setAll(buttonSetAsParent, buttonTypeCancel);
             } else if (selectionState == SelectionState.SELECT_ACQUAINTANCE) {
                 alert.getButtonTypes().setAll(buttonSetAsAcquaintance, buttonTypeCancel);
+            } else if (selectionState == SelectionState.REMOVE_CONNECTION) {
+                alert.getButtonTypes().setAll(buttonRemoveThisConnection, buttonTypeCancel);
             }
         }
 
@@ -198,7 +202,43 @@ public class IdeaController {
             optionSetAcquaintance(event);
         } else if (result.get() == buttonSetAsAcquaintance) {
             selectAsAcquaintance(event);
+        } else if (result.get() == buttonRemoveAConnection) {
+            optionRemoveConnection(event);
+        } else if (result.get() == buttonRemoveThisConnection) {
+            removeThisConnection(event);
         }
+    }
+
+    private void removeThisConnection(MouseEvent event) {
+        Pane pane = (Pane) event.getSource();
+        Idea connectedIdea = getIdeaFromPane(pane);
+        if (connectedIdea != manipulatedIdea) {
+            // check if connection is parent-child
+            if (connectedIdea.hasThisChild(manipulatedIdea)) {
+                connectedIdea.removeChild(manipulatedIdea);
+                ideaLineMap.get(manipulatedIdea).setStartX(-10);
+                ideaLineMap.get(manipulatedIdea).setStartY(-10);
+                ideaLineMap.get(manipulatedIdea).setEndX(-10);
+                ideaLineMap.get(manipulatedIdea).setEndY(-10);
+            }
+            // check if connection is acquaintance
+            else if (connectedIdea.hasThisAcquaintance(manipulatedIdea)) {
+                connectedIdea.removeAcquaintance(manipulatedIdea);
+                removeNodeFromScene(acquaintanceLineMap.get(connectedIdea).get(manipulatedIdea));
+                acquaintanceLineMap.get(connectedIdea).remove(manipulatedIdea);
+            }
+            // if no connection, do nothing
+        }
+        selectionState = SelectionState.NONE;
+        manipulatedIdea = null;
+        updateLines(ideaGroup);
+    }
+
+    private void optionRemoveConnection(MouseEvent event) {
+        Pane pane = (Pane) event.getSource();
+        Idea idea = getIdeaFromPane(pane);
+        manipulatedIdea = idea;
+        selectionState = SelectionState.REMOVE_CONNECTION;
     }
 
     private void optionCreate(MouseEvent event) {
@@ -216,7 +256,6 @@ public class IdeaController {
     }
 
     private void selectAsParent(MouseEvent event) {
-
         Pane pane = (Pane) event.getSource();
         Idea parent = getIdeaFromPane(pane);
         if (parent != manipulatedIdea) {
