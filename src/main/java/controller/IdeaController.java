@@ -179,7 +179,7 @@ public class IdeaController {
             alert.getButtonTypes().setAll(buttonCreate, buttonTypeCancel);
         } else {
             if (selectionState == SelectionState.NONE) {
-                alert.getButtonTypes().setAll(buttonSetParent, buttonTypeCancel);
+                alert.getButtonTypes().setAll(buttonSetParent, buttonSetAcquaintance, buttonTypeCancel);
             } else if (selectionState == SelectionState.SELECT_PARENT) {
                 alert.getButtonTypes().setAll(buttonSetAsParent, buttonTypeCancel);
             } else if (selectionState == SelectionState.SELECT_ACQUAINTANCE) {
@@ -195,9 +195,9 @@ public class IdeaController {
         } else if (result.get() == buttonSetAsParent) {
             selectAsParent(event);
         } else if (result.get() == buttonSetAcquaintance) {
-
+            optionSetAcquaintance(event);
         } else if (result.get() == buttonSetAsAcquaintance) {
-
+            selectAsAcquaintance(event);
         }
     }
 
@@ -213,6 +213,75 @@ public class IdeaController {
         Idea child = getIdeaFromPane(pane);
         manipulatedIdea = child;
         selectionState = SelectionState.SELECT_PARENT;
+    }
+
+    private void selectAsParent(MouseEvent event) {
+
+        Pane pane = (Pane) event.getSource();
+        Idea parent = getIdeaFromPane(pane);
+        if (parent != manipulatedIdea) {
+            // remove child from set of children of the previous parent
+            if (manipulatedIdea.hasParent())
+                manipulatedIdea.getParent().getChildren().remove(manipulatedIdea);
+            parent.addChild(manipulatedIdea);
+        }
+        selectionState = SelectionState.NONE;
+        manipulatedIdea = null;
+        updateLines(ideaGroup);
+    }
+
+    private void optionSetAcquaintance(MouseEvent event) {
+        Pane pane = (Pane) event.getSource();
+        Idea acquaintance = getIdeaFromPane(pane);
+        manipulatedIdea = acquaintance;
+        selectionState = SelectionState.SELECT_ACQUAINTANCE;
+    }
+
+    private void selectAsAcquaintance(MouseEvent event) {
+        Pane pane = (Pane) event.getSource();
+        Idea acquaintance = getIdeaFromPane(pane);
+        if (acquaintance != manipulatedIdea) {
+            addAcquaintance(acquaintance, IdeaConnectionType.EXPLANATION);
+        }
+        selectionState = SelectionState.NONE;
+        manipulatedIdea = null;
+        updateLines(ideaGroup);
+    }
+
+    public void optionCreateThoughtAt(double x, double y) {
+        String theme;
+        Idea idea;
+
+        // on right click, open a dialog to take text; the theme for Idea
+        double width = 280;
+        Dialog dialog = new TextInputDialog();
+        dialog.setX(x + width);
+        dialog.setY(y + 60);
+        dialog.setHeaderText("");
+        dialog.setTitle("Add an idea");
+        dialog.setContentText("Enter an idea:");
+        Optional<String> result = dialog.showAndWait();
+
+        // create the Idea with the info of a theme
+        // create a basic Bubble (Ellipse shape)
+        if (result.isPresent() && result.get().length() > 0) {
+            theme = result.get();
+            if (getIdeaByTheme(theme) == null) {
+                idea = new Idea(theme);
+                Pane pane = ideaToPane(idea);
+                pane.setTranslateX(x);
+                pane.setTranslateY(y);
+                ideaGroup.getChildren().add(pane);
+            } else {
+                System.out.println("Already exists!\n");
+            }
+        }
+
+        // add options upon right clicking the Bubble;
+        // shape, color, sizes
+
+        // add options upon right clicking to remove, create child or update
+
     }
 
     private EventHandler<MouseEvent> paneOnMouseDraggedEventHandler = new EventHandler<MouseEvent>() {
@@ -248,6 +317,14 @@ public class IdeaController {
 
         }
     };
+
+    private void addAcquaintance(Idea idea, IdeaConnectionType connectionType) {
+        Line line = new Line();
+        idea.addAcquaintance(manipulatedIdea, connectionType);
+        acquaintanceLineMap.get(idea).put(manipulatedIdea, line);
+        addNodeToScene(line);
+        drawAcquaintanceLines(idea);
+    }
 
     public void updateLines(Group ideaGroup) {
         for (Idea idea : ideaLineMap.keySet()) {
@@ -306,8 +383,6 @@ public class IdeaController {
 
     private void drawAcquaintanceLines(Idea idea) {
         if (idea.getAcquaintances().size() > 0) {
-            Map<Idea, IdeaConnectionType> children = idea.getAcquaintances();
-
             Pane start = getThemePaneFromGroup(idea.getTheme(), ideaGroup);
 
             for (Idea acquaintance : idea.getAcquaintances().keySet()) {
@@ -475,55 +550,12 @@ public class IdeaController {
         return selectionState;
     }
 
-    public void optionCreateThoughtAt(double x, double y) {
-        String theme;
-        Idea idea;
-
-        // on right click, open a dialog to take text; the theme for Idea
-        double width = 280;
-        Dialog dialog = new TextInputDialog();
-        dialog.setX(x + width);
-        dialog.setY(y + 60);
-        dialog.setHeaderText("");
-        dialog.setTitle("Add an idea");
-        dialog.setContentText("Enter an idea:");
-        Optional<String> result = dialog.showAndWait();
-
-        // create the Idea with the info of a theme
-        // create a basic Bubble (Ellipse shape)
-        if (result.isPresent() && result.get().length() > 0) {
-            theme = result.get();
-            if (getIdeaByTheme(theme) == null) {
-                idea = new Idea(theme);
-                Pane pane = ideaToPane(idea);
-                pane.setTranslateX(x);
-                pane.setTranslateY(y);
-                ideaGroup.getChildren().add(pane);
-            } else {
-                System.out.println("Already exists!\n");
-            }
-        }
-
-        // add options upon right clicking the Bubble;
-        // shape, color, sizes
-
-        // add options upon right clicking to remove, create child or update
-
+    private void addNodeToScene(Node node) {
+        ((Group)scene.getRoot()).getChildren().add(node);
     }
 
-    private void selectAsParent(MouseEvent event) {
-
-        Pane pane = (Pane) event.getSource();
-        Idea parent = getIdeaFromPane(pane);
-        if (parent != manipulatedIdea) {
-            // remove child from set of children of the previous parent
-            if (manipulatedIdea.hasParent())
-                manipulatedIdea.getParent().getChildren().remove(manipulatedIdea);
-            parent.addChild(manipulatedIdea);
-        }
-        selectionState = SelectionState.NONE;
-        manipulatedIdea = null;
-        updateLines(ideaGroup);
+    private void removeNodeFromScene(Node node) {
+        ((Group)scene.getRoot()).getChildren().remove(node);
     }
 
     /*
