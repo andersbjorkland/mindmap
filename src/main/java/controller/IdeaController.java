@@ -175,13 +175,14 @@ public class IdeaController {
         ButtonType buttonSetAsAcquaintance = new ButtonType("Set as an Acquaintance Connection");
         ButtonType buttonRemoveAConnection = new ButtonType("Remove connection");
         ButtonType buttonRemoveThisConnection = new ButtonType("Remove connection");
+        ButtonType buttonDeleteIdea = new ButtonType("Delete this idea");
         ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
 
         if (event.getSource() instanceof Scene) {
             alert.getButtonTypes().setAll(buttonCreate, buttonTypeCancel);
         } else {
             if (selectionState == SelectionState.NONE) {
-                alert.getButtonTypes().setAll(buttonSetParent, buttonSetAcquaintance, buttonRemoveAConnection, buttonTypeCancel);
+                alert.getButtonTypes().setAll(buttonSetParent, buttonSetAcquaintance, buttonRemoveAConnection, buttonDeleteIdea, buttonTypeCancel);
             } else if (selectionState == SelectionState.SELECT_PARENT) {
                 alert.getButtonTypes().setAll(buttonSetAsParent, buttonTypeCancel);
             } else if (selectionState == SelectionState.SELECT_ACQUAINTANCE) {
@@ -206,7 +207,51 @@ public class IdeaController {
             optionRemoveConnection(event);
         } else if (result.get() == buttonRemoveThisConnection) {
             removeThisConnection(event);
+        } else if (result.get() == buttonDeleteIdea) {
+            deleteIdea(event);
         }
+    }
+
+    private void deleteIdea(MouseEvent event) {
+        Pane pane = (Pane) event.getSource();
+        Idea deleteIdea = getIdeaFromPane(pane);
+
+        // get all lines associated with this idea and delete them
+        removeNodeFromScene(ideaLineMap.get(deleteIdea));
+        ideaLineMap.remove(deleteIdea);
+
+        for (Idea idea : ideaLineMap.keySet()) {
+            if (idea != deleteIdea) {
+                if (idea.hasThisAcquaintance(deleteIdea)) {
+                    idea.removeAcquaintance(deleteIdea);
+                    removeNodeFromScene(acquaintanceLineMap.get(idea).get(deleteIdea));
+                    acquaintanceLineMap.get(idea).remove(deleteIdea);
+                }
+            }
+        }
+
+        for (Idea idea : deleteIdea.getAcquaintances().keySet()) {
+            removeNodeFromScene(acquaintanceLineMap.get(deleteIdea).get(idea));
+            acquaintanceLineMap.get(deleteIdea).remove(idea);
+        }
+
+        if (deleteIdea.hasParent()) {
+            deleteIdea.getParent().removeChild(deleteIdea);
+        }
+
+        if (deleteIdea.getChildren().size() > 0) {
+            for (Idea child : deleteIdea.getChildren()) {
+                Line line =  ideaLineMap.get(child);
+                line.setStartX(-10);
+                line.setStartY(-10);
+                line.setEndX(-10);
+                line.setEndY(-10);
+            }
+        }
+
+        ideaLineMap.remove(deleteIdea);
+        ((Group)pane.getParent()).getChildren().remove(pane);
+
     }
 
     private void removeThisConnection(MouseEvent event) {
@@ -216,10 +261,11 @@ public class IdeaController {
             // check if connection is parent-child
             if (connectedIdea.hasThisChild(manipulatedIdea)) {
                 connectedIdea.removeChild(manipulatedIdea);
-                ideaLineMap.get(manipulatedIdea).setStartX(-10);
-                ideaLineMap.get(manipulatedIdea).setStartY(-10);
-                ideaLineMap.get(manipulatedIdea).setEndX(-10);
-                ideaLineMap.get(manipulatedIdea).setEndY(-10);
+                Line line =  ideaLineMap.get(manipulatedIdea);
+                line.setStartX(-10);
+                line.setStartY(-10);
+                line.setEndX(-10);
+                line.setEndY(-10);
             }
             // check if connection is acquaintance
             else if (connectedIdea.hasThisAcquaintance(manipulatedIdea)) {

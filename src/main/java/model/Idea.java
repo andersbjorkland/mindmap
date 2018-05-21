@@ -88,7 +88,6 @@ public class Idea {
     }
 
     public boolean hasParent() {
-        System.out.println("hasParent is called.");
         return parent != null;
     }
 
