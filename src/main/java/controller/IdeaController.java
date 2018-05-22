@@ -268,18 +268,22 @@ public class IdeaController {
                 line.setEndY(-10);
             }
             // check if connection is acquaintance
-            else if (connectedIdea.hasThisAcquaintance(manipulatedIdea)) {
+            if (connectedIdea.hasThisAcquaintance(manipulatedIdea)) {
                 connectedIdea.removeAcquaintance(manipulatedIdea);
                 removeNodeFromScene(acquaintanceLineMap.get(connectedIdea).get(manipulatedIdea));
                 acquaintanceLineMap.get(connectedIdea).remove(manipulatedIdea);
-            } else if (manipulatedIdea.hasThisChild(connectedIdea)) {
+            }
+
+            if (manipulatedIdea.hasThisChild(connectedIdea)) {
                 manipulatedIdea.removeChild(connectedIdea);
                 Line line =  ideaLineMap.get(connectedIdea);
                 line.setStartX(-10);
                 line.setStartY(-10);
                 line.setEndX(-10);
                 line.setEndY(-10);
-            } else if (manipulatedIdea.hasThisAcquaintance(connectedIdea)) {
+            }
+
+            if (manipulatedIdea.hasThisAcquaintance(connectedIdea)) {
                 manipulatedIdea.removeAcquaintance(connectedIdea);
                 removeNodeFromScene(acquaintanceLineMap.get(manipulatedIdea).get(connectedIdea));
                 acquaintanceLineMap.get(manipulatedIdea).remove(connectedIdea);
