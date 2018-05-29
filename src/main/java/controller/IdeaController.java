@@ -7,6 +7,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -15,6 +16,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
+import javafx.stage.Window;
 import model.Bubble;
 import model.BubbleType;
 import model.Idea;
@@ -38,6 +40,7 @@ public class IdeaController {
 
     public IdeaController(Scene scene) {
         this.scene = scene;
+        //this.scene.setOnContextMenuRequested(event -> options(event));
         track = new BoundTrack(scene.getWidth(), scene.getHeight());
     }
 
@@ -72,10 +75,10 @@ public class IdeaController {
         text.setFill(getContrastColor((Color)shape.getFill()));
 
         pane.getChildren().addAll(shape, text);
+        //pane.setOnContextMenuRequested(event -> options(event));
         pane.setOnMousePressed(paneOnMousePressedEventHandler);
         pane.setOnMouseDragged(paneOnMouseDraggedEventHandler);
 
-        //((Group)scene.getRoot()).getChildren().addAll(pane);
         ((Group)scene.getRoot()).getChildren().add(line);
         return pane;
     }
@@ -158,57 +161,68 @@ public class IdeaController {
             }
         }
     };
+
     public void options(MouseEvent event) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation Dialog with Custom Actions");
-        alert.setHeaderText("Look, a Confirmation Dialog with Custom Actions");
-        alert.setContentText("Choose your option.");
+        ContextMenu contextMenu;
 
-        ButtonType buttonCreate = new ButtonType("Create");
-        ButtonType buttonCreateChild = new ButtonType("Create a child");
-        ButtonType buttonSetParent = new ButtonType("Set Parent");
-        ButtonType buttonSetAsParent = new ButtonType("Set as Parent");
-        ButtonType buttonSetShape = new ButtonType("Choose a Shape");
-        ButtonType buttonSetShapeColor = new ButtonType("Choose Shape Color");
-        ButtonType buttonSetConnection  = new ButtonType("Choose Parent Relation");
-        ButtonType buttonSetAcquaintance = new ButtonType("Add an Acquaintance Connection");
-        ButtonType buttonSetAsAcquaintance = new ButtonType("Set as an Acquaintance Connection");
-        ButtonType buttonRemoveAConnection = new ButtonType("Remove connection");
-        ButtonType buttonRemoveThisConnection = new ButtonType("Remove connection");
-        ButtonType buttonDeleteIdea = new ButtonType("Delete this idea");
-        ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        // Declare all menu items.
+        MenuItem create;
+        MenuItem setParent;
+        MenuItem setAsParent;
+        MenuItem setAcquaintance;
+        MenuItem setAsAcquaintance;
+        MenuItem removeAConnection;
+        MenuItem removeThisConnection;
+        MenuItem delete;
 
+        // Initialize the items as needed and set event handlers
         if (event.getSource() instanceof Scene) {
-            alert.getButtonTypes().setAll(buttonCreate, buttonTypeCancel);
-        } else {
-            if (selectionState == SelectionState.NONE) {
-                alert.getButtonTypes().setAll(buttonSetParent, buttonSetAcquaintance, buttonRemoveAConnection, buttonDeleteIdea, buttonTypeCancel);
-            } else if (selectionState == SelectionState.SELECT_PARENT) {
-                alert.getButtonTypes().setAll(buttonSetAsParent, buttonTypeCancel);
-            } else if (selectionState == SelectionState.SELECT_ACQUAINTANCE) {
-                alert.getButtonTypes().setAll(buttonSetAsAcquaintance, buttonTypeCancel);
-            } else if (selectionState == SelectionState.REMOVE_CONNECTION) {
-                alert.getButtonTypes().setAll(buttonRemoveThisConnection, buttonTypeCancel);
-            }
-        }
+            contextMenu = new ContextMenu();
+            create = new MenuItem("Create");
+            create.setOnAction(contextEvent -> optionCreate(event));
 
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == buttonCreate) {
-            optionCreate(event);
-        } else if (result.get() == buttonSetParent) {
-            optionSetParent(event);
-        } else if (result.get() == buttonSetAsParent) {
-            selectAsParent(event);
-        } else if (result.get() == buttonSetAcquaintance) {
-            optionSetAcquaintance(event);
-        } else if (result.get() == buttonSetAsAcquaintance) {
-            selectAsAcquaintance(event);
-        } else if (result.get() == buttonRemoveAConnection) {
-            optionRemoveConnection(event);
-        } else if (result.get() == buttonRemoveThisConnection) {
-            removeThisConnection(event);
-        } else if (result.get() == buttonDeleteIdea) {
-            deleteIdea(event);
+            contextMenu.getItems().add(create);
+
+            Scene scene = (Scene) event.getSource();
+            Window ownerWindow = scene.getWindow();
+            contextMenu.show(ownerWindow, event.getScreenX(), event.getScreenY());
+
+        } else {
+            contextMenu = new ContextMenu();
+            if (selectionState == SelectionState.NONE) {
+                setParent = new MenuItem("Set Parent");
+                setParent.setOnAction(contextEvent -> optionSetParent(event));
+
+                setAcquaintance = new MenuItem("Add an Acquaintance Connection");
+                setAcquaintance.setOnAction(contextEvent -> optionSetAcquaintance(event));
+
+                removeAConnection = new MenuItem("Remove connection");
+                removeAConnection.setOnAction(contextEvent -> optionRemoveConnection(event));
+
+                delete = new MenuItem("Delete this idea");
+                delete.setOnAction(contextEvent -> deleteIdea(event));
+
+                contextMenu.getItems().addAll(setParent, setAcquaintance, removeAConnection, delete);
+
+            } else if (selectionState == SelectionState.SELECT_PARENT) {
+                setAsParent = new MenuItem("Set as Parent");
+                setAsParent.setOnAction(contextEvent -> selectAsParent(event));
+
+                contextMenu.getItems().add(setAsParent);
+
+            } else if (selectionState == SelectionState.SELECT_ACQUAINTANCE) {
+                setAsAcquaintance = new MenuItem("Set as an Acquaintance Connection");
+                setAsAcquaintance.setOnAction(contextEvent -> selectAsAcquaintance(event));
+
+                contextMenu.getItems().add(setAsAcquaintance);
+
+            } else if (selectionState == SelectionState.REMOVE_CONNECTION) {
+                removeThisConnection = new MenuItem("Remove this connection");
+                removeThisConnection.setOnAction(contextEvent -> removeThisConnection(event));
+
+                contextMenu.getItems().add(removeThisConnection);
+            }
+            contextMenu.show((Node)event.getSource(), event.getScreenX(), event.getScreenY());
         }
     }
 

@@ -4,6 +4,7 @@ import controller.IdeaController;
 import controller.SelectionState;
 import javafx.application.Application;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
@@ -34,15 +35,12 @@ public class Display extends Application {
         Group ideaGroup = controller.generateIdeaGroup(IdeaController.mindExample());
 
         root.getChildren().addAll(ideaGroup);
-        //root.getChildren().addAll(controller.getLines());
-
-        // will contain options list
+        //scene.setOnContextMenuRequested(event -> controller.options(event));
         scene.setOnMouseClicked(event -> {
             if (event.getButton() == MouseButton.SECONDARY) {
                 controller.options(event);
             }
         });
-
 
         primaryStage.setResizable(false);
         primaryStage.setScene(scene);
