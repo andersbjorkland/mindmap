@@ -167,9 +167,6 @@ public class IdeaController {
     };
 
     public void options(ContextMenuEvent event) {
-        if (contextMenu.isShowing()) {
-            //contextMenu.hide();
-        }
         contextMenu = new ContextMenu();
 
         // Declare all menu items.
@@ -184,7 +181,7 @@ public class IdeaController {
 
         // Initialize the items as needed and set event handlers
         if (event.getSource() instanceof Canvas) {
-
+            selectionState = SelectionState.NONE;
             create = new MenuItem("Create");
             create.setOnAction(contextEvent -> optionCreate(event));
 
