@@ -1,13 +1,12 @@
 package canvas;
 
 import controller.IdeaController;
-import controller.SelectionState;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -31,16 +30,13 @@ public class Display extends Application {
 
         IdeaController controller = new IdeaController(scene);
 
+        Node background = new Canvas(SCENE_WIDTH, SCENE_HEIGHT);
+        background.setOnContextMenuRequested(event -> controller.options(event));
+
         // Create shapes for progress testing.
         Group ideaGroup = controller.generateIdeaGroup(IdeaController.mindExample());
 
-        root.getChildren().addAll(ideaGroup);
-        //scene.setOnContextMenuRequested(event -> controller.options(event));
-        scene.setOnMouseClicked(event -> {
-            if (event.getButton() == MouseButton.SECONDARY) {
-                controller.options(event);
-            }
-        });
+        root.getChildren().addAll(background, ideaGroup);
 
         primaryStage.setResizable(false);
         primaryStage.setScene(scene);

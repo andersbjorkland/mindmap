@@ -6,6 +6,7 @@ import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
@@ -37,11 +38,13 @@ public class IdeaController {
     // State of manipulation
     private SelectionState selectionState = SelectionState.NONE;
     private Idea manipulatedIdea;
+    private ContextMenu contextMenu;
 
     public IdeaController(Scene scene) {
         this.scene = scene;
-        //this.scene.setOnContextMenuRequested(event -> options(event));
+        this.scene.setOnContextMenuRequested(event -> options(event));
         track = new BoundTrack(scene.getWidth(), scene.getHeight());
+        contextMenu = new ContextMenu();
     }
 
     public Collection<Line> getLines() {
@@ -75,7 +78,7 @@ public class IdeaController {
         text.setFill(getContrastColor((Color)shape.getFill()));
 
         pane.getChildren().addAll(shape, text);
-        //pane.setOnContextMenuRequested(event -> options(event));
+        pane.setOnContextMenuRequested(event -> options(event));
         pane.setOnMousePressed(paneOnMousePressedEventHandler);
         pane.setOnMouseDragged(paneOnMouseDraggedEventHandler);
 
@@ -152,7 +155,7 @@ public class IdeaController {
         @Override
         public void handle(MouseEvent event) {
             if (event.getButton() == MouseButton.SECONDARY) {
-                options(event);
+                //options(event);
             } else {
                 orgSceneX = event.getSceneX();
                 orgSceneY = event.getSceneY();
@@ -162,8 +165,7 @@ public class IdeaController {
         }
     };
 
-    public void options(MouseEvent event) {
-        ContextMenu contextMenu;
+    public void options(ContextMenuEvent event) {
 
         // Declare all menu items.
         MenuItem create;
@@ -176,18 +178,15 @@ public class IdeaController {
         MenuItem delete;
 
         // Initialize the items as needed and set event handlers
-        if (event.getSource() instanceof Scene) {
+        if (event.getSource() instanceof Canvas) {
             contextMenu = new ContextMenu();
             create = new MenuItem("Create");
             create.setOnAction(contextEvent -> optionCreate(event));
 
             contextMenu.getItems().add(create);
+            contextMenu.show((Node) event.getSource(), event.getScreenX(), event.getScreenY());
 
-            Scene scene = (Scene) event.getSource();
-            Window ownerWindow = scene.getWindow();
-            contextMenu.show(ownerWindow, event.getScreenX(), event.getScreenY());
-
-        } else {
+        } else if (event.getSource() instanceof Node) {
             contextMenu = new ContextMenu();
             if (selectionState == SelectionState.NONE) {
                 setParent = new MenuItem("Set Parent");
@@ -222,11 +221,13 @@ public class IdeaController {
 
                 contextMenu.getItems().add(removeThisConnection);
             }
-            contextMenu.show((Node)event.getSource(), event.getScreenX(), event.getScreenY());
+            contextMenu.show((Node) event.getSource(), event.getScreenX(), event.getScreenY());
+
         }
+
     }
 
-    private void deleteIdea(MouseEvent event) {
+    private void deleteIdea(ContextMenuEvent event) {
         Pane pane = (Pane) event.getSource();
         Idea deleteIdea = getIdeaFromPane(pane);
 
@@ -268,7 +269,7 @@ public class IdeaController {
 
     }
 
-    private void removeThisConnection(MouseEvent event) {
+    private void removeThisConnection(ContextMenuEvent event) {
         Pane pane = (Pane) event.getSource();
         Idea connectedIdea = getIdeaFromPane(pane);
         if (connectedIdea != manipulatedIdea) {
@@ -309,28 +310,28 @@ public class IdeaController {
         updateLines(ideaGroup);
     }
 
-    private void optionRemoveConnection(MouseEvent event) {
+    private void optionRemoveConnection(ContextMenuEvent event) {
         Pane pane = (Pane) event.getSource();
         Idea idea = getIdeaFromPane(pane);
         manipulatedIdea = idea;
         selectionState = SelectionState.REMOVE_CONNECTION;
     }
 
-    private void optionCreate(MouseEvent event) {
+    public void optionCreate(ContextMenuEvent event) {
         double sceneX = event.getSceneX();
         double sceneY = event.getSceneY();
 
         optionCreateThoughtAt(sceneX, sceneY);
     }
 
-    private void optionSetParent(MouseEvent event) {
+    private void optionSetParent(ContextMenuEvent event) {
         Pane pane = (Pane) event.getSource();
         Idea child = getIdeaFromPane(pane);
         manipulatedIdea = child;
         selectionState = SelectionState.SELECT_PARENT;
     }
 
-    private void selectAsParent(MouseEvent event) {
+    private void selectAsParent(ContextMenuEvent event) {
         Pane pane = (Pane) event.getSource();
         Idea parent = getIdeaFromPane(pane);
         if (parent != manipulatedIdea) {
@@ -344,14 +345,14 @@ public class IdeaController {
         updateLines(ideaGroup);
     }
 
-    private void optionSetAcquaintance(MouseEvent event) {
+    private void optionSetAcquaintance(ContextMenuEvent event) {
         Pane pane = (Pane) event.getSource();
         Idea acquaintance = getIdeaFromPane(pane);
         manipulatedIdea = acquaintance;
         selectionState = SelectionState.SELECT_ACQUAINTANCE;
     }
 
-    private void selectAsAcquaintance(MouseEvent event) {
+    private void selectAsAcquaintance(ContextMenuEvent event) {
         Pane pane = (Pane) event.getSource();
         Idea acquaintance = getIdeaFromPane(pane);
         if (acquaintance != manipulatedIdea) {
