@@ -42,9 +42,10 @@ public class IdeaController {
 
     public IdeaController(Scene scene) {
         this.scene = scene;
-        this.scene.setOnContextMenuRequested(event -> options(event));
         track = new BoundTrack(scene.getWidth(), scene.getHeight());
         contextMenu = new ContextMenu();
+
+        this.scene.setOnMouseClicked(event -> contextMenu.hide());
     }
 
     public Collection<Line> getLines() {
@@ -166,6 +167,10 @@ public class IdeaController {
     };
 
     public void options(ContextMenuEvent event) {
+        if (contextMenu.isShowing()) {
+            //contextMenu.hide();
+        }
+        contextMenu = new ContextMenu();
 
         // Declare all menu items.
         MenuItem create;
@@ -179,7 +184,7 @@ public class IdeaController {
 
         // Initialize the items as needed and set event handlers
         if (event.getSource() instanceof Canvas) {
-            contextMenu = new ContextMenu();
+
             create = new MenuItem("Create");
             create.setOnAction(contextEvent -> optionCreate(event));
 
@@ -187,7 +192,6 @@ public class IdeaController {
             contextMenu.show((Node) event.getSource(), event.getScreenX(), event.getScreenY());
 
         } else if (event.getSource() instanceof Node) {
-            contextMenu = new ContextMenu();
             if (selectionState == SelectionState.NONE) {
                 setParent = new MenuItem("Set Parent");
                 setParent.setOnAction(contextEvent -> optionSetParent(event));
