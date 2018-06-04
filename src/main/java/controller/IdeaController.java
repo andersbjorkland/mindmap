@@ -14,6 +14,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
@@ -175,6 +176,9 @@ public class IdeaController {
         MenuItem setAsParent;
         MenuItem setAcquaintance;
         MenuItem setAsAcquaintance;
+        Menu setColor;
+        MenuItem setShape;
+        MenuItem setThickness;
         MenuItem removeAConnection;
         MenuItem removeThisConnection;
         MenuItem delete;
@@ -196,13 +200,25 @@ public class IdeaController {
                 setAcquaintance = new MenuItem("Add an Acquaintance Connection");
                 setAcquaintance.setOnAction(contextEvent -> optionSetAcquaintance(event));
 
+                //Color choices
+                setColor = new Menu("Set Color");
+                MenuItem setBlack = new MenuItem("Black");
+                MenuItem setBlue = new MenuItem("Blue");
+                MenuItem setGreen = new MenuItem("Green");
+                MenuItem setRed = new MenuItem("Red");
+                setBlack.setOnAction(contextEvent -> optionSetColor(event, Color.BLACK));
+                setBlue.setOnAction(contextEvent -> optionSetColor(event, Color.BLUE));
+                setGreen.setOnAction(contextEvent -> optionSetColor(event, Color.GREEN));
+                setRed.setOnAction(contextEvent -> optionSetColor(event, Color.RED));
+                setColor.getItems().addAll(setBlack, setBlue, setGreen, setRed);
+
                 removeAConnection = new MenuItem("Remove connection");
                 removeAConnection.setOnAction(contextEvent -> optionRemoveConnection(event));
 
                 delete = new MenuItem("Delete this idea");
                 delete.setOnAction(contextEvent -> deleteIdea(event));
 
-                contextMenu.getItems().addAll(setParent, setAcquaintance, removeAConnection, delete);
+                contextMenu.getItems().addAll(setParent, setAcquaintance, setColor, removeAConnection, delete);
 
             } else if (selectionState == SelectionState.SELECT_PARENT) {
                 setAsParent = new MenuItem("Set as Parent");
@@ -226,6 +242,18 @@ public class IdeaController {
 
         }
 
+    }
+
+    private void optionSetColor(ContextMenuEvent event, Color color) {
+        if (event.getSource() instanceof Pane) {
+            Pane pane = (Pane)event.getSource();
+            Idea idea = getIdeaFromPane(pane);
+            Bubble bubble = idea.getBubble();
+            bubble.setColor(color);
+
+            Shape shape = getShapeFromPane(pane);
+            shape.setStroke(color);
+        }
     }
 
     private void deleteIdea(ContextMenuEvent event) {
@@ -660,6 +688,27 @@ public class IdeaController {
             }
         }
         return byTheme;
+    }
+
+    // not text
+    private Shape getShapeFromPane(Pane pane) {
+        Shape shape = null;
+        for (Node node : pane.getChildren()) {
+            if (!(node instanceof Text) && node instanceof Shape) {
+                shape = (Shape) node;
+            }
+        }
+        return shape;
+    }
+
+    private Shape getTextFromPane(Pane pane) {
+        Shape shape = null;
+        for (Node node : pane.getChildren()) {
+            if (node instanceof Text) {
+                shape = (Shape) node;
+            }
+        }
+        return shape;
     }
 
     public SelectionState getSelectionState() {
