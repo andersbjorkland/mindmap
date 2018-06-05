@@ -6,15 +6,19 @@ import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
+import javafx.stage.Window;
 import model.Bubble;
 import model.BubbleType;
 import model.Idea;
@@ -35,10 +39,14 @@ public class IdeaController {
     // State of manipulation
     private SelectionState selectionState = SelectionState.NONE;
     private Idea manipulatedIdea;
+    private ContextMenu contextMenu;
 
     public IdeaController(Scene scene) {
         this.scene = scene;
         track = new BoundTrack(scene.getWidth(), scene.getHeight());
+        contextMenu = new ContextMenu();
+
+        this.scene.setOnMouseClicked(event -> contextMenu.hide());
     }
 
     public Collection<Line> getLines() {
@@ -72,10 +80,10 @@ public class IdeaController {
         text.setFill(getContrastColor((Color)shape.getFill()));
 
         pane.getChildren().addAll(shape, text);
+        pane.setOnContextMenuRequested(event -> options(event));
         pane.setOnMousePressed(paneOnMousePressedEventHandler);
         pane.setOnMouseDragged(paneOnMouseDraggedEventHandler);
 
-        //((Group)scene.getRoot()).getChildren().addAll(pane);
         ((Group)scene.getRoot()).getChildren().add(line);
         return pane;
     }
@@ -149,7 +157,7 @@ public class IdeaController {
         @Override
         public void handle(MouseEvent event) {
             if (event.getButton() == MouseButton.SECONDARY) {
-                options(event);
+                //options(event);
             } else {
                 orgSceneX = event.getSceneX();
                 orgSceneY = event.getSceneY();
@@ -158,61 +166,97 @@ public class IdeaController {
             }
         }
     };
-    public void options(MouseEvent event) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmation Dialog with Custom Actions");
-        alert.setHeaderText("Look, a Confirmation Dialog with Custom Actions");
-        alert.setContentText("Choose your option.");
 
-        ButtonType buttonCreate = new ButtonType("Create");
-        ButtonType buttonCreateChild = new ButtonType("Create a child");
-        ButtonType buttonSetParent = new ButtonType("Set Parent");
-        ButtonType buttonSetAsParent = new ButtonType("Set as Parent");
-        ButtonType buttonSetShape = new ButtonType("Choose a Shape");
-        ButtonType buttonSetShapeColor = new ButtonType("Choose Shape Color");
-        ButtonType buttonSetConnection  = new ButtonType("Choose Parent Relation");
-        ButtonType buttonSetAcquaintance = new ButtonType("Add an Acquaintance Connection");
-        ButtonType buttonSetAsAcquaintance = new ButtonType("Set as an Acquaintance Connection");
-        ButtonType buttonRemoveAConnection = new ButtonType("Remove connection");
-        ButtonType buttonRemoveThisConnection = new ButtonType("Remove connection");
-        ButtonType buttonDeleteIdea = new ButtonType("Delete this idea");
-        ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+    public void options(ContextMenuEvent event) {
+        contextMenu = new ContextMenu();
 
-        if (event.getSource() instanceof Scene) {
-            alert.getButtonTypes().setAll(buttonCreate, buttonTypeCancel);
-        } else {
+        // Declare all menu items.
+        MenuItem create;
+        MenuItem setParent;
+        MenuItem setAsParent;
+        MenuItem setAcquaintance;
+        MenuItem setAsAcquaintance;
+        Menu setColor;
+        MenuItem setShape;
+        MenuItem setThickness;
+        MenuItem removeAConnection;
+        MenuItem removeThisConnection;
+        MenuItem delete;
+
+        // Initialize the items as needed and set event handlers
+        if (event.getSource() instanceof Canvas) {
+            selectionState = SelectionState.NONE;
+            create = new MenuItem("Create");
+            create.setOnAction(contextEvent -> optionCreate(event));
+
+            contextMenu.getItems().add(create);
+            contextMenu.show((Node) event.getSource(), event.getScreenX(), event.getScreenY());
+
+        } else if (event.getSource() instanceof Node) {
             if (selectionState == SelectionState.NONE) {
-                alert.getButtonTypes().setAll(buttonSetParent, buttonSetAcquaintance, buttonRemoveAConnection, buttonDeleteIdea, buttonTypeCancel);
+                setParent = new MenuItem("Set Parent");
+                setParent.setOnAction(contextEvent -> optionSetParent(event));
+
+                setAcquaintance = new MenuItem("Add an Acquaintance Connection");
+                setAcquaintance.setOnAction(contextEvent -> optionSetAcquaintance(event));
+
+                //Color choices
+                setColor = new Menu("Set Color");
+                MenuItem setBlack = new MenuItem("Black");
+                MenuItem setBlue = new MenuItem("Blue");
+                MenuItem setGreen = new MenuItem("Green");
+                MenuItem setRed = new MenuItem("Red");
+                setBlack.setOnAction(contextEvent -> optionSetColor(event, Color.BLACK));
+                setBlue.setOnAction(contextEvent -> optionSetColor(event, Color.BLUE));
+                setGreen.setOnAction(contextEvent -> optionSetColor(event, Color.GREEN));
+                setRed.setOnAction(contextEvent -> optionSetColor(event, Color.RED));
+                setColor.getItems().addAll(setBlack, setBlue, setGreen, setRed);
+
+                removeAConnection = new MenuItem("Remove connection");
+                removeAConnection.setOnAction(contextEvent -> optionRemoveConnection(event));
+
+                delete = new MenuItem("Delete this idea");
+                delete.setOnAction(contextEvent -> deleteIdea(event));
+
+                contextMenu.getItems().addAll(setParent, setAcquaintance, setColor, removeAConnection, delete);
+
             } else if (selectionState == SelectionState.SELECT_PARENT) {
-                alert.getButtonTypes().setAll(buttonSetAsParent, buttonTypeCancel);
+                setAsParent = new MenuItem("Set as Parent");
+                setAsParent.setOnAction(contextEvent -> selectAsParent(event));
+
+                contextMenu.getItems().add(setAsParent);
+
             } else if (selectionState == SelectionState.SELECT_ACQUAINTANCE) {
-                alert.getButtonTypes().setAll(buttonSetAsAcquaintance, buttonTypeCancel);
+                setAsAcquaintance = new MenuItem("Set as an Acquaintance Connection");
+                setAsAcquaintance.setOnAction(contextEvent -> selectAsAcquaintance(event));
+
+                contextMenu.getItems().add(setAsAcquaintance);
+
             } else if (selectionState == SelectionState.REMOVE_CONNECTION) {
-                alert.getButtonTypes().setAll(buttonRemoveThisConnection, buttonTypeCancel);
+                removeThisConnection = new MenuItem("Remove this connection");
+                removeThisConnection.setOnAction(contextEvent -> removeThisConnection(event));
+
+                contextMenu.getItems().add(removeThisConnection);
             }
+            contextMenu.show((Node) event.getSource(), event.getScreenX(), event.getScreenY());
+
         }
 
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == buttonCreate) {
-            optionCreate(event);
-        } else if (result.get() == buttonSetParent) {
-            optionSetParent(event);
-        } else if (result.get() == buttonSetAsParent) {
-            selectAsParent(event);
-        } else if (result.get() == buttonSetAcquaintance) {
-            optionSetAcquaintance(event);
-        } else if (result.get() == buttonSetAsAcquaintance) {
-            selectAsAcquaintance(event);
-        } else if (result.get() == buttonRemoveAConnection) {
-            optionRemoveConnection(event);
-        } else if (result.get() == buttonRemoveThisConnection) {
-            removeThisConnection(event);
-        } else if (result.get() == buttonDeleteIdea) {
-            deleteIdea(event);
+    }
+
+    private void optionSetColor(ContextMenuEvent event, Color color) {
+        if (event.getSource() instanceof Pane) {
+            Pane pane = (Pane)event.getSource();
+            Idea idea = getIdeaFromPane(pane);
+            Bubble bubble = idea.getBubble();
+            bubble.setColor(color);
+
+            Shape shape = getShapeFromPane(pane);
+            shape.setStroke(color);
         }
     }
 
-    private void deleteIdea(MouseEvent event) {
+    private void deleteIdea(ContextMenuEvent event) {
         Pane pane = (Pane) event.getSource();
         Idea deleteIdea = getIdeaFromPane(pane);
 
@@ -254,7 +298,7 @@ public class IdeaController {
 
     }
 
-    private void removeThisConnection(MouseEvent event) {
+    private void removeThisConnection(ContextMenuEvent event) {
         Pane pane = (Pane) event.getSource();
         Idea connectedIdea = getIdeaFromPane(pane);
         if (connectedIdea != manipulatedIdea) {
@@ -295,28 +339,28 @@ public class IdeaController {
         updateLines(ideaGroup);
     }
 
-    private void optionRemoveConnection(MouseEvent event) {
+    private void optionRemoveConnection(ContextMenuEvent event) {
         Pane pane = (Pane) event.getSource();
         Idea idea = getIdeaFromPane(pane);
         manipulatedIdea = idea;
         selectionState = SelectionState.REMOVE_CONNECTION;
     }
 
-    private void optionCreate(MouseEvent event) {
+    public void optionCreate(ContextMenuEvent event) {
         double sceneX = event.getSceneX();
         double sceneY = event.getSceneY();
 
         optionCreateThoughtAt(sceneX, sceneY);
     }
 
-    private void optionSetParent(MouseEvent event) {
+    private void optionSetParent(ContextMenuEvent event) {
         Pane pane = (Pane) event.getSource();
         Idea child = getIdeaFromPane(pane);
         manipulatedIdea = child;
         selectionState = SelectionState.SELECT_PARENT;
     }
 
-    private void selectAsParent(MouseEvent event) {
+    private void selectAsParent(ContextMenuEvent event) {
         Pane pane = (Pane) event.getSource();
         Idea parent = getIdeaFromPane(pane);
         if (parent != manipulatedIdea) {
@@ -330,14 +374,14 @@ public class IdeaController {
         updateLines(ideaGroup);
     }
 
-    private void optionSetAcquaintance(MouseEvent event) {
+    private void optionSetAcquaintance(ContextMenuEvent event) {
         Pane pane = (Pane) event.getSource();
         Idea acquaintance = getIdeaFromPane(pane);
         manipulatedIdea = acquaintance;
         selectionState = SelectionState.SELECT_ACQUAINTANCE;
     }
 
-    private void selectAsAcquaintance(MouseEvent event) {
+    private void selectAsAcquaintance(ContextMenuEvent event) {
         Pane pane = (Pane) event.getSource();
         Idea acquaintance = getIdeaFromPane(pane);
         if (acquaintance != manipulatedIdea) {
@@ -644,6 +688,27 @@ public class IdeaController {
             }
         }
         return byTheme;
+    }
+
+    // not text
+    private Shape getShapeFromPane(Pane pane) {
+        Shape shape = null;
+        for (Node node : pane.getChildren()) {
+            if (!(node instanceof Text) && node instanceof Shape) {
+                shape = (Shape) node;
+            }
+        }
+        return shape;
+    }
+
+    private Shape getTextFromPane(Pane pane) {
+        Shape shape = null;
+        for (Node node : pane.getChildren()) {
+            if (node instanceof Text) {
+                shape = (Shape) node;
+            }
+        }
+        return shape;
     }
 
     public SelectionState getSelectionState() {
