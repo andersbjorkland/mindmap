@@ -14,11 +14,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.stage.Window;
 import model.Bubble;
 import model.BubbleType;
 import model.Idea;
@@ -176,7 +175,6 @@ public class IdeaController {
         MenuItem setAsParent;
         MenuItem setAcquaintance;
         MenuItem setAsAcquaintance;
-        Menu setColor;
         MenuItem setShape;
         MenuItem setThickness;
         MenuItem removeAConnection;
@@ -200,25 +198,18 @@ public class IdeaController {
                 setAcquaintance = new MenuItem("Add an Acquaintance Connection");
                 setAcquaintance.setOnAction(contextEvent -> optionSetAcquaintance(event));
 
-                //Color choices
-                setColor = new Menu("Set Color");
-                MenuItem setBlack = new MenuItem("Black");
-                MenuItem setBlue = new MenuItem("Blue");
-                MenuItem setGreen = new MenuItem("Green");
-                MenuItem setRed = new MenuItem("Red");
-                setBlack.setOnAction(contextEvent -> optionSetColor(event, Color.BLACK));
-                setBlue.setOnAction(contextEvent -> optionSetColor(event, Color.BLUE));
-                setGreen.setOnAction(contextEvent -> optionSetColor(event, Color.GREEN));
-                setRed.setOnAction(contextEvent -> optionSetColor(event, Color.RED));
-                setColor.getItems().addAll(setBlack, setBlue, setGreen, setRed);
-
                 removeAConnection = new MenuItem("Remove connection");
                 removeAConnection.setOnAction(contextEvent -> optionRemoveConnection(event));
 
                 delete = new MenuItem("Delete this idea");
                 delete.setOnAction(contextEvent -> deleteIdea(event));
 
-                contextMenu.getItems().addAll(setParent, setAcquaintance, setColor, removeAConnection, delete);
+                contextMenu.getItems().addAll(setParent,
+                        setAcquaintance,
+                        shapeColorMenu(event),
+                        textMenu(event),
+                        removeAConnection,
+                        delete);
 
             } else if (selectionState == SelectionState.SELECT_PARENT) {
                 setAsParent = new MenuItem("Set as Parent");
@@ -244,7 +235,62 @@ public class IdeaController {
 
     }
 
-    private void optionSetColor(ContextMenuEvent event, Color color) {
+
+
+
+    private Menu shapeColorMenu(ContextMenuEvent event) {
+        //Color choices
+        Menu setShapeColor = new Menu("Set Shape Color");
+        MenuItem setShapeBlack = new MenuItem("Black");
+        MenuItem setShapeBlue = new MenuItem("Blue");
+        MenuItem setShapeGreen = new MenuItem("Green");
+        MenuItem setShapeRed = new MenuItem("Red");
+        setShapeBlack.setOnAction(contextEvent -> optionSetShapeColor(event, Color.BLACK));
+        setShapeBlue.setOnAction(contextEvent -> optionSetShapeColor(event, Color.BLUE));
+        setShapeGreen.setOnAction(contextEvent -> optionSetShapeColor(event, Color.GREEN));
+        setShapeRed.setOnAction(contextEvent -> optionSetShapeColor(event, Color.RED));
+        setShapeColor.getItems().addAll(setShapeBlack, setShapeBlue, setShapeGreen, setShapeRed);
+
+        return setShapeColor;
+    }
+
+    private Menu textMenu(ContextMenuEvent event) {
+        Menu textMenu = new Menu("Text options");
+        textMenu.getItems().addAll(textColorMenu(event), textSizeMenu(event));
+
+        return textMenu;
+    }
+
+    private Menu textSizeMenu(ContextMenuEvent event) {
+        Menu setTextSize = new Menu("Set Text Size");
+        MenuItem setSmall = new MenuItem("Small");
+        MenuItem setMedium = new MenuItem("Medium");
+        MenuItem setLarge = new MenuItem("Large");
+        setSmall.setOnAction(contextEvent -> optionSetTextSize(event, SizeChoice.SMALL));
+        setMedium.setOnAction(contextEvent -> optionSetTextSize(event, SizeChoice.MEDIUM));
+        setLarge.setOnAction(contextEvent -> optionSetTextSize(event, SizeChoice.LARGE));
+
+        setTextSize.getItems().addAll(setSmall, setMedium, setLarge);
+
+        return setTextSize;
+    }
+
+    private Menu textColorMenu(ContextMenuEvent event) {
+        Menu setTextColor = new Menu("Set Text Color");
+        MenuItem setTextBlack = new MenuItem("Black");
+        MenuItem setTextBlue = new MenuItem("Blue");
+        MenuItem setTextGreen = new MenuItem("Green");
+        MenuItem setTextRed = new MenuItem("Red");
+        setTextBlack.setOnAction(contextEvent -> optionSetTextColor(event, Color.BLACK));
+        setTextBlue.setOnAction(contextEvent -> optionSetTextColor(event, Color.BLUE));
+        setTextGreen.setOnAction(contextEvent -> optionSetTextColor(event, Color.GREEN));
+        setTextRed.setOnAction(contextEvent -> optionSetTextColor(event, Color.RED));
+        setTextColor.getItems().addAll(setTextBlack, setTextBlue, setTextGreen, setTextRed);
+
+        return setTextColor;
+    }
+
+    private void optionSetShapeColor(ContextMenuEvent event, Color color) {
         if (event.getSource() instanceof Pane) {
             Pane pane = (Pane)event.getSource();
             Idea idea = getIdeaFromPane(pane);
@@ -253,6 +299,49 @@ public class IdeaController {
 
             Shape shape = getShapeFromPane(pane);
             shape.setStroke(color);
+        }
+    }
+
+    private void optionSetShapeSize(ContextMenuEvent event, int height, int width) {
+        Pane pane = getPaneFromEvent(event);
+        Shape shape = getShapeFromPane(pane);
+        Idea idea = getIdeaFromPane(pane);
+        Bubble bubble = idea.getBubble();
+        bubble.setSizeY(height);
+        bubble.setSizeX(width);
+
+        shape = bubble.getShape();
+    }
+
+
+    private void optionSetTextColor(ContextMenuEvent event, Color color) {
+        if (event.getSource() instanceof Pane) {
+            Pane pane = (Pane)event.getSource();
+            Idea idea = getIdeaFromPane(pane);
+            Bubble bubble = idea.getBubble();
+            bubble.setColor(color);
+
+            Text text = getTextFromPane(pane);
+            text.setFill(color);
+
+
+        }
+    }
+
+    private void optionSetTextSize(ContextMenuEvent event, SizeChoice size) {
+        Pane pane = getPaneFromEvent(event);
+        Text text = getTextFromPane(pane);
+
+        switch (size) {
+            case SMALL: text.setFont(new Font(10));
+                break;
+            case MEDIUM: text.setFont(new Font(14));
+                break;
+            case LARGE: text.setFont(new Font(18));
+                optionSetShapeSize(event,
+                        (int)(getShapeFromPane(pane).getBoundsInLocal().getHeight() * 1.5),
+                        (int)(getShapeFromPane(pane).getBoundsInLocal().getWidth() * 1.5));
+                break;
         }
     }
 
@@ -690,6 +779,15 @@ public class IdeaController {
         return byTheme;
     }
 
+
+    private Pane getPaneFromEvent(ContextMenuEvent event) {
+        Pane pane = null;
+        if (event.getSource() instanceof Pane) {
+            pane = (Pane)event.getSource();
+        }
+        return pane;
+    }
+
     // not text
     private Shape getShapeFromPane(Pane pane) {
         Shape shape = null;
@@ -701,14 +799,14 @@ public class IdeaController {
         return shape;
     }
 
-    private Shape getTextFromPane(Pane pane) {
-        Shape shape = null;
+    private Text getTextFromPane(Pane pane) {
+        Text text = null;
         for (Node node : pane.getChildren()) {
             if (node instanceof Text) {
-                shape = (Shape) node;
+                text = (Text) node;
             }
         }
-        return shape;
+        return text;
     }
 
     public SelectionState getSelectionState() {
