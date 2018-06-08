@@ -53,7 +53,7 @@ public class Bubble {
         switch (type) {
             case ELLIPSE:   shape = new Ellipse(sizeX, sizeY);
                             break;
-            case RECTANGLE: shape = new Rectangle(sizeX, sizeY);
+            case RECTANGLE: shape = new Rectangle(sizeX*2, sizeY*2);
                             break;
             case CLOUD:     shape = Cloudy.getShape(sizeX, sizeY);
                             break;

@@ -23,6 +23,7 @@ import model.BubbleType;
 import model.Idea;
 import model.IdeaConnectionType;
 
+import java.net.ConnectException;
 import java.util.*;
 
 public class IdeaController {
@@ -237,9 +238,27 @@ public class IdeaController {
 
     private Menu shapeMenu(ContextMenuEvent event) {
         Menu shapeMenu = new Menu("Shape Options");
-        shapeMenu.getItems().addAll(shapeSizeMenu(event), shapeColorMenu(event));
+        shapeMenu.getItems().addAll(changeShapeMenu(event), shapeSizeMenu(event), shapeColorMenu(event));
 
         return  shapeMenu;
+    }
+
+    private Menu changeShapeMenu(ContextMenuEvent event) {
+        Menu changeShape = new Menu("Change Shape");
+
+        MenuItem ellipse = new MenuItem("Ellipse");
+        MenuItem rectangle = new MenuItem("Rectangle");
+        MenuItem cloud = new MenuItem("Cloudy");
+        MenuItem spiky = new MenuItem("Spiky");
+
+        ellipse.setOnAction(contextEvent -> optionChangeShape(event, BubbleType.ELLIPSE));
+        rectangle.setOnAction(contextEvent -> optionChangeShape(event, BubbleType.RECTANGLE));
+        cloud.setOnAction(contextEvent -> optionChangeShape(event, BubbleType.CLOUD));
+        spiky.setOnAction(contextEvent -> optionChangeShape(event, BubbleType.SPIKY));
+
+        changeShape.getItems().addAll(ellipse, rectangle, cloud, spiky);
+
+        return changeShape;
     }
 
     private Menu shapeSizeMenu(ContextMenuEvent event) {
@@ -307,6 +326,20 @@ public class IdeaController {
         return setTextColor;
     }
 
+    private void optionChangeShape(ContextMenuEvent event, BubbleType bubbleType) {
+        if (event.getSource() instanceof Pane) {
+            Pane pane = (Pane)event.getSource();
+            Idea idea = getIdeaFromPane(pane);
+            Bubble bubble = idea.getBubble();
+            bubble.setType(bubbleType);
+
+            Shape originalShape = getShapeFromPane(pane);
+            Shape newShape = bubble.getShape();
+
+            replaceNodeOnPane(pane, originalShape, newShape);
+        }
+    }
+
     private void optionSetShapeColor(ContextMenuEvent event, Color color) {
         if (event.getSource() instanceof Pane) {
             Pane pane = (Pane)event.getSource();
@@ -342,7 +375,7 @@ public class IdeaController {
 
         bubble.setSizeY(sizeY);
         bubble.setSizeX(sizeX);
-        
+
         Node original = shape;
         Node newNode = bubble.getShape();
 
