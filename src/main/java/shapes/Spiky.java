@@ -13,8 +13,8 @@ public class Spiky {
 
     private static Shape defineSpike(double width, double height) {
         // add padding
-        width *= 1.4;
-        height *= 1.5;
+        width += 47;
+        height += 30;
 
         double widthAt30And150 = widthAtAngleOfEllipse(30, width, height) * 1.3;
 

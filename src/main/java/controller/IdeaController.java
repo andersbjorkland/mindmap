@@ -206,7 +206,7 @@ public class IdeaController {
 
                 contextMenu.getItems().addAll(setParent,
                         setAcquaintance,
-                        shapeColorMenu(event),
+                        shapeMenu(event),
                         textMenu(event),
                         removeAConnection,
                         delete);
@@ -235,8 +235,25 @@ public class IdeaController {
 
     }
 
+    private Menu shapeMenu(ContextMenuEvent event) {
+        Menu shapeMenu = new Menu("Shape Options");
+        shapeMenu.getItems().addAll(shapeSizeMenu(event), shapeColorMenu(event));
 
+        return  shapeMenu;
+    }
 
+    private Menu shapeSizeMenu(ContextMenuEvent event) {
+        Menu setShapeSize = new Menu("Change Shape Size");
+
+        MenuItem changeSmaller = new MenuItem("Smaller");
+        MenuItem changeLarger = new MenuItem("Larger");
+        changeSmaller.setOnAction(contextEvent -> optionSetShapeSize(event, false));
+        changeLarger.setOnAction(contextEvent -> optionSetShapeSize(event, true));
+
+        setShapeSize.getItems().addAll(changeSmaller, changeLarger);
+
+        return setShapeSize;
+    }
 
     private Menu shapeColorMenu(ContextMenuEvent event) {
         //Color choices
@@ -302,15 +319,50 @@ public class IdeaController {
         }
     }
 
-    private void optionSetShapeSize(ContextMenuEvent event, int height, int width) {
+    private void optionSetShapeSize(ContextMenuEvent event, boolean larger) {
+
         Pane pane = getPaneFromEvent(event);
         Shape shape = getShapeFromPane(pane);
         Idea idea = getIdeaFromPane(pane);
         Bubble bubble = idea.getBubble();
-        bubble.setSizeY(height);
-        bubble.setSizeX(width);
 
-        shape = bubble.getShape();
+        int sizeX = bubble.getSizeX();
+        int sizeY = bubble.getSizeY();
+
+        int incrementX = 10;
+        int incrementY = 4;
+
+        if (larger) {
+            sizeX += incrementX;
+            sizeY += incrementY;
+        } else {
+            sizeX -= incrementX;
+            sizeY -= incrementY;
+        }
+
+        bubble.setSizeY(sizeY);
+        bubble.setSizeX(sizeX);
+        
+        Node original = shape;
+        Node newNode = bubble.getShape();
+
+        replaceNodeOnPane(pane, original, newNode);
+
+    }
+
+    private void replaceNodeOnPane(Pane pane, Node paneNode, Node replaceWith) {
+
+        int zIndex = 0;
+
+        for (int i = 0; i < pane.getChildren().size(); i++) {
+            if (pane.getChildren().get(i) == paneNode) {
+                zIndex = i;
+            }
+        }
+
+        boolean isRemoved = pane.getChildren().remove(paneNode);
+        pane.getChildren().add(zIndex, replaceWith);
+
     }
 
 
@@ -338,9 +390,6 @@ public class IdeaController {
             case MEDIUM: text.setFont(new Font(14));
                 break;
             case LARGE: text.setFont(new Font(18));
-                optionSetShapeSize(event,
-                        (int)(getShapeFromPane(pane).getBoundsInLocal().getHeight() * 1.5),
-                        (int)(getShapeFromPane(pane).getBoundsInLocal().getWidth() * 1.5));
                 break;
         }
     }
