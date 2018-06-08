@@ -6,6 +6,8 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -36,7 +38,9 @@ public class Display extends Application {
         // Create shapes for progress testing.
         Group ideaGroup = controller.generateIdeaGroup(IdeaController.mindExample());
 
-        root.getChildren().addAll(background, ideaGroup);
+        MenuBar menuBar = generateMenuBar();
+
+        root.getChildren().addAll(background, ideaGroup, menuBar);
 
         primaryStage.setResizable(false);
         primaryStage.setScene(scene);
@@ -46,6 +50,19 @@ public class Display extends Application {
 
         controller.moveListOfPanesToFreeSpace(controller.extractPanesFromGroup(ideaGroup));
         controller.updateLines(ideaGroup);
+
+    }
+
+    private MenuBar generateMenuBar() {
+        MenuBar menuBar = new MenuBar();
+        menuBar.setMinWidth(scene.getWidth() + 20);
+        Menu menuFile = new Menu("File");
+        menuBar.getMenus().add(menuFile);
+
+        return menuBar;
+    }
+
+    private void save() {
 
     }
 }

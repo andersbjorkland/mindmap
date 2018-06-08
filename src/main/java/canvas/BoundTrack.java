@@ -4,7 +4,8 @@ import javafx.geometry.Bounds;
 
 public class BoundTrack {
     public static final int TRACK_RESOLUTION_X = 30;
-    public static final int TRACK_RESOLUTION_Y = 20;
+    public static final int TRACK_RESOLUTION_Y = 30;
+    private static final int Y_LOWER_BOUND = 1;
     private BoundTrackStatus[][] gridTrack = new BoundTrackStatus[TRACK_RESOLUTION_X][TRACK_RESOLUTION_Y];
     private double trackedWidth;
     private double trackedHeight;
@@ -18,7 +19,11 @@ public class BoundTrack {
     private void initializeStatusArray() {
         for (int x = 0; x < TRACK_RESOLUTION_X; x++) {
             for (int y = 0; y < TRACK_RESOLUTION_Y; y++) {
-                gridTrack[x][y] = BoundTrackStatus.FREE;
+                if (y < Y_LOWER_BOUND) {
+                    gridTrack[x][y] = BoundTrackStatus.OCCUPIED;
+                } else {
+                    gridTrack[x][y] = BoundTrackStatus.FREE;
+                }
             }
         }
     }

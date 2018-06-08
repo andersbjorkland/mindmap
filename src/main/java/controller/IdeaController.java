@@ -602,6 +602,8 @@ public class IdeaController {
     private EventHandler<MouseEvent> paneOnMouseDraggedEventHandler = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event) {
+            int menuOffsetY = 20;
+
             double offsetX = event.getSceneX() - orgSceneX;
             double offsetY = event.getSceneY() - orgSceneY;
             double newTranslateX = orgTranslateX + offsetX;
@@ -620,8 +622,8 @@ public class IdeaController {
             }
 
             // boundary up and down
-            if (newTranslateY < - (sourceHeight/2)) {
-                newTranslateY = - Math.round(sourceHeight/2);
+            if (newTranslateY < (menuOffsetY - (sourceHeight/2))) {
+                newTranslateY = menuOffsetY - Math.round(sourceHeight/2);
             } else if (newTranslateY > (scene.getHeight() - sourceHeight/2 + 10) ) {
                 newTranslateY = scene.getHeight() - Math.round(sourceHeight/2) + 10;
             }
@@ -777,17 +779,17 @@ public class IdeaController {
             generationLevel = 4;
         }
 
-        double xIncrement = track.getHorizontalBinSize();
-        double yIncrement = track.getVerticalBinSize() + 10;
+        double xIncrement = track.getHorizontalBinSize() + 10;
+        double yIncrement = track.getVerticalBinSize() + 25;
 
         // Policy is to start looking downwards from top center scene
         // then from left to right
         // in increments of pane height and width
+        double yMenuOffset = 30;
         double coordinateMinX = (scene.getWidth() - bounds.getWidth()) / 2;
-        double coordinateMinY = generationLevel * yIncrement;
+        double coordinateMinY = generationLevel * yIncrement + yMenuOffset;
         double coordinateMaxX = coordinateMinX + bounds.getWidth();
         double coordinateMaxY = coordinateMinY + bounds.getHeight();
-
 
 
         // test if area is free
