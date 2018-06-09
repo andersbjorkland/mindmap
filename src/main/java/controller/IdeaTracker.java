@@ -12,39 +12,39 @@ public class IdeaTracker implements Serializable{
     private static final long serialVersionUID = 1L;
     Map<Idea, PointSer> paneSceneTrack;
 
-    transient Scene scene;
-    transient IdeaController controller;
-
     public IdeaTracker(IdeaController controller) {
         this.paneSceneTrack = new HashMap<>();
-
-        this.scene = controller.getScene();
-        this.controller = controller;
     }
 
-    public void update() {
+    public void update(IdeaController controller) {
         paneSceneTrack.clear();
-        populateMap();
+        populateMap(controller);
     }
 
-    private void populateMap() {
+    public void clearTrack() {
+        paneSceneTrack.clear();
+    }
+
+    private void populateMap(IdeaController controller) {
+        System.out.println("I'm called on save in IdeaTracker.populateMap()");  //TODO: Remove
         Set<Idea> ideas = controller.getAllIdeas();
 
         for (Idea idea : ideas) {
-            addIdeaToMap(idea);
+            addIdeaToMap(idea, controller);
         }
 
     }
 
-    private void addIdeaToMap(Idea idea) {
+    private void addIdeaToMap(Idea idea, IdeaController controller) {
         Point2D point = controller.getScenePointFromIdea(idea);
         PointSer pointSer = new PointSer(point.getX(), point.getY());
+        System.out.println(pointSer);   //TODO: Remove
 
         paneSceneTrack.put(idea, pointSer);
     }
 
-    public Map<Idea, PointSer> getPaneSceneTrack() {
-        update();
+    public Map<Idea, PointSer> getPaneSceneTrack(IdeaController controller) {
+        update(controller);
         return paneSceneTrack;
     }
 

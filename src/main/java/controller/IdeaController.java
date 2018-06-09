@@ -19,12 +19,8 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import model.Bubble;
-import model.BubbleType;
-import model.Idea;
-import model.IdeaConnectionType;
+import model.*;
 
-import java.net.ConnectException;
 import java.util.*;
 
 public class IdeaController {
@@ -42,8 +38,9 @@ public class IdeaController {
     private Idea manipulatedIdea;
     private ContextMenu contextMenu;
 
-    public IdeaController(Scene scene) {
+    public IdeaController(Scene scene, Group ideaGroup) {
         this.scene = scene;
+        this.ideaGroup = ideaGroup;
         track = new BoundTrack(scene.getWidth(), scene.getHeight());
         contextMenu = new ContextMenu();
 
@@ -430,6 +427,10 @@ public class IdeaController {
 
     private void deleteIdea(ContextMenuEvent event) {
         Pane pane = (Pane) event.getSource();
+        deleteIdea(pane);
+    }
+
+    private void deleteIdea(Pane pane) {
         Idea deleteIdea = getIdeaFromPane(pane);
 
         // get all lines associated with this idea and delete them
@@ -446,10 +447,13 @@ public class IdeaController {
             }
         }
 
+
+        System.out.println("Clearing acquaintances..." + deleteIdea); //TODO: remove
         for (Idea idea : deleteIdea.getAcquaintances().keySet()) {
             removeNodeFromScene(acquaintanceLineMap.get(deleteIdea).get(idea));
             acquaintanceLineMap.get(deleteIdea).remove(idea);
         }
+
 
         if (deleteIdea.hasParent()) {
             deleteIdea.getParent().removeChild(deleteIdea);
@@ -656,11 +660,11 @@ public class IdeaController {
         if (parent.hasChildren()) {
             Set<Idea> children = parent.getChildren();
 
-            Pane start = getThemePaneFromGroup(parent.getTheme(), ideaGroup);
+            Pane start = getIdeaPaneFromGroup(parent.getTheme(), ideaGroup);
 
             for (Idea child : children) {
 
-                Pane end = getThemePaneFromGroup(child.getTheme(), ideaGroup);
+                Pane end = getIdeaPaneFromGroup(child.getTheme(), ideaGroup);
 
                 Line line = ideaLineMap.get(child);
 
@@ -701,11 +705,11 @@ public class IdeaController {
 
     private void drawAcquaintanceLines(Idea idea) {
         if (idea.getAcquaintances().size() > 0) {
-            Pane start = getThemePaneFromGroup(idea.getTheme(), ideaGroup);
+            Pane start = getIdeaPaneFromGroup(idea.getTheme(), ideaGroup);
 
             for (Idea acquaintance : idea.getAcquaintances().keySet()) {
 
-                Pane end = getThemePaneFromGroup(acquaintance.getTheme(), ideaGroup);
+                Pane end = getIdeaPaneFromGroup(acquaintance.getTheme(), ideaGroup);
 
                 Line line = acquaintanceLineMap.get(idea).get(acquaintance);
                 line.getStrokeDashArray().addAll(5.0, 5.0);
@@ -747,19 +751,19 @@ public class IdeaController {
 
     public Point2D getScenePointFromPane(Pane pane) {
 
-        double x = pane.getLayoutX();
-        double y = pane.getLayoutY();
+        double x = pane.getTranslateX();
+        double y = pane.getTranslateY();
 
         return new Point2D(x, y);
     }
 
     public Point2D getScenePointFromIdea(Idea idea) {
-        Pane pane = getThemePaneFromGroup(idea.getTheme(), ideaGroup);
+        Pane pane = getIdeaPaneFromGroup(idea.getTheme(), ideaGroup);
         return getScenePointFromPane(pane);
     }
 
 
-    private Pane getThemePaneFromGroup(String theme, Group group) {
+    private Pane getIdeaPaneFromGroup(String theme, Group group) {
         Pane themePane = new Pane();
 
         for (Node node : group.getChildren()) {
@@ -980,5 +984,28 @@ public class IdeaController {
         }
 
         return ideas;
+    }
+
+    public void removeAllIdeas() {
+        Set<Idea> ideas = getAllIdeas();
+        for (Idea idea : ideas) {
+            deleteIdea(getIdeaPaneFromGroup(idea.getTheme(), ideaGroup));
+        }
+
+        //ideaLineMap.clear();      TODO: clear
+        //acquaintanceLineMap.clear();  TODO: clear
+    }
+
+    public void unPackToScene(IdeaTracker tracker) {
+        Map<Idea, PointSer> ideaPointMap = tracker.paneSceneTrack;
+
+        for (Idea idea : ideaPointMap.keySet()) {
+            Pane pane = ideaToPane(idea);
+            PointSer point = ideaPointMap.get(idea);
+            pane.setTranslateX(point.getX());
+            pane.setTranslateY(point.getY());
+            System.out.println(point);
+            ideaGroup.getChildren().add(pane);
+        }
     }
 }

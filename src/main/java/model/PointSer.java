@@ -28,4 +28,12 @@ public class PointSer implements Serializable {
     public void setY(double y) {
         this.y = y;
     }
+
+    @Override
+    public String toString() {
+        return "PointSer{" +
+                x +
+                ":" + y +
+                '}';
+    }
 }
