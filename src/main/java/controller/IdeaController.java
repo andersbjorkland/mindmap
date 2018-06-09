@@ -3,6 +3,7 @@ package controller;
 import canvas.BoundTrack;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -744,6 +745,20 @@ public class IdeaController {
         }
     }
 
+    public Point2D getScenePointFromPane(Pane pane) {
+
+        double x = pane.getLayoutX();
+        double y = pane.getLayoutY();
+
+        return new Point2D(x, y);
+    }
+
+    public Point2D getScenePointFromIdea(Idea idea) {
+        Pane pane = getThemePaneFromGroup(idea.getTheme(), ideaGroup);
+        return getScenePointFromPane(pane);
+    }
+
+
     private Pane getThemePaneFromGroup(String theme, Group group) {
         Pane themePane = new Pane();
 
@@ -756,8 +771,7 @@ public class IdeaController {
                         if (text.equals(theme)) {
                             themePane = pane;
                         }
-                    }
-                }
+                    }}
 
             }
         }
@@ -953,4 +967,18 @@ public class IdeaController {
         return mainIdea;
     }
 
+    public Scene getScene() {
+        return scene;
+    }
+
+    public Set<Idea> getAllIdeas() {
+        Set<Idea> ideas = new HashSet<>();
+
+        ideas.addAll(ideaLineMap.keySet());
+        for (Idea idea : ideas) {
+            ideas.addAll(idea.getAcquaintances().keySet());
+        }
+
+        return ideas;
+    }
 }

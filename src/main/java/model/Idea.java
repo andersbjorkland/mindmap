@@ -1,6 +1,7 @@
 package model;
 
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -10,7 +11,8 @@ import java.util.*;
  *
  * A map tracks the connection types each child (Idea) has to its parent.
  */
-public class Idea {
+public class Idea implements Serializable {
+    private static final long serialVersionUID = 1L;
     private int id;
     private String theme;
     private Idea parent;

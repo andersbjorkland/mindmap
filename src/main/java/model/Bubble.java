@@ -7,12 +7,16 @@ import javafx.scene.shape.Shape;
 import shapes.Cloudy;
 import shapes.Spiky;
 
+import java.io.Serializable;
+
 /**
  * Instructions for the shape of thought bubble in the mind map,
  * its color, its thickness and its size
  */
-public class Bubble {
-    private Color color;
+public class Bubble implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private transient Color color;
+    private String colorString;     // used to save color state
     private BubbleType type;
     private int lineThickness;
     private int sizeX;
@@ -24,6 +28,7 @@ public class Bubble {
         this.lineThickness = lineThickness;
         this.sizeX = sizeX;
         this.sizeY = sizeY;
+        this.colorString = toRGBCode(color);
     }
 
     Bubble(Color color, BubbleType type, int sizeX, int sizeY) {
@@ -37,6 +42,10 @@ public class Bubble {
      */
     public Bubble(int sizeX, int sizeY) {
         this(Color.BLACK, BubbleType.ELLIPSE, sizeX, sizeY);
+    }
+
+    public Bubble(String colorString, BubbleType type, int lineThickness, int sizeX, int sizeY) {
+        this(Color.web(colorString), type, lineThickness, sizeX, sizeY);
     }
 
     Bubble() {
@@ -106,5 +115,12 @@ public class Bubble {
 
     public void setSizeY(int sizeY) {
         this.sizeY = sizeY;
+    }
+
+    public static String toRGBCode(Color color) {
+        return String.format( "#%02X%02X%02X",
+                (int)( color.getRed() * 255 ),
+                (int)( color.getGreen() * 255 ),
+                (int)( color.getBlue() * 255 ) );
     }
 }

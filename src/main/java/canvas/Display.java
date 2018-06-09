@@ -1,6 +1,7 @@
 package canvas;
 
 import controller.IdeaController;
+import controller.IdeaTracker;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -8,9 +9,13 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
+import java.io.*;
 
 
 public class Display extends Application {
@@ -21,6 +26,10 @@ public class Display extends Application {
     private Group root = new Group();
     private Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT, SCENE_BACKGROUND);
 
+    private IdeaController controller;
+    private IdeaTracker ideaTracker;
+    private Stage stage;
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         try {
@@ -30,7 +39,10 @@ public class Display extends Application {
             ex.printStackTrace();
         }
 
-        IdeaController controller = new IdeaController(scene);
+        stage = primaryStage;
+
+        controller = new IdeaController(scene);
+        ideaTracker = new IdeaTracker(controller);
 
         Node background = new Canvas(SCENE_WIDTH, SCENE_HEIGHT);
         background.setOnContextMenuRequested(event -> controller.options(event));
@@ -51,18 +63,45 @@ public class Display extends Application {
         controller.moveListOfPanesToFreeSpace(controller.extractPanesFromGroup(ideaGroup));
         controller.updateLines(ideaGroup);
 
+
     }
 
     private MenuBar generateMenuBar() {
         MenuBar menuBar = new MenuBar();
         menuBar.setMinWidth(scene.getWidth() + 20);
         Menu menuFile = new Menu("File");
+        MenuItem save = new MenuItem("Save");
+        save.setOnAction(event -> save());
+        menuFile.getItems().add(save);
         menuBar.getMenus().add(menuFile);
 
         return menuBar;
     }
 
     private void save() {
+        ideaTracker.update();
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Mind Map");
+        FileChooser.ExtensionFilter fileExtensions =
+                new FileChooser.ExtensionFilter(
+                        "Mindmap Format (.mmf)", "*.mmf");
+        fileChooser.getExtensionFilters().add(fileExtensions);
+
+        File file = fileChooser.showSaveDialog(stage);
+        if (file != null) {
+            try {
+                FileOutputStream fout = new FileOutputStream(file.getAbsolutePath());
+                ObjectOutputStream oos = new ObjectOutputStream(fout);
+                oos.writeObject(ideaTracker);
+                oos.close();
+                fout.close();
+            } catch (IOException ex) {
+                System.out.println(ex.getMessage());
+            }
+        }
+    }
+
+    private void load() {
 
     }
 }
