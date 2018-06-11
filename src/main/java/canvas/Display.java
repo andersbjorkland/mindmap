@@ -114,7 +114,7 @@ public class Display extends Application {
         fileChooser.setTitle("Load Mind Map");
         FileChooser.ExtensionFilter fileExtensions =
                 new FileChooser.ExtensionFilter(
-                        "Mindmap Format (.mmf)", "*.mmf");
+                        "Mind Map Format (.mmf)", "*.mmf");
         fileChooser.getExtensionFilters().add(fileExtensions);
 
         File file = fileChooser.showOpenDialog(stage);
@@ -144,6 +144,9 @@ public class Display extends Application {
                 System.out.println("Scene is being cleared."); //TODO: Remove
                 controller.removeAllIdeas();
                 ideaTracker.clearTrack();
+                if (ideaGroup.getChildren().size() > 0) {
+                    ideaGroup.getChildren().clear();
+                }
             }
         }
     }

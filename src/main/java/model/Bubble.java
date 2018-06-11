@@ -16,7 +16,8 @@ import java.io.Serializable;
 public class Bubble implements Serializable {
     private static final long serialVersionUID = 1L;
     private transient Color color;
-    private String colorString;     // used to save color state
+    private String colorString = "";     // used to save color state
+    private String textColorString;
     private BubbleType type;
     private int lineThickness;
     private int sizeX;
@@ -29,6 +30,8 @@ public class Bubble implements Serializable {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.colorString = toRGBCode(color);
+        this.textColorString =  toRGBCode(Color.BLACK);
+        System.out.println("Bubble created: " + this);
     }
 
     Bubble(Color color, BubbleType type, int sizeX, int sizeY) {
@@ -49,11 +52,7 @@ public class Bubble implements Serializable {
     }
 
     Bubble() {
-        color = Color.BLACK;
-        type = BubbleType.ELLIPSE;
-        lineThickness = 2;
-        sizeX = 10;
-        sizeY = 8;
+        this (Color.BLACK, BubbleType.ELLIPSE, 2, 10, 8);
     }
 
     public Shape getShape() {
@@ -71,6 +70,11 @@ public class Bubble implements Serializable {
             default: shape = new Ellipse(sizeX, sizeY);
         }
 
+        System.out.println(this);
+        System.out.println(colorString);
+        if (colorString.length() > 0) {
+            color = Color.web(colorString);
+        }
         shape.setStroke(color);
         shape.setStrokeWidth(lineThickness);
         shape.setFill(Color.WHITE);
@@ -78,11 +82,23 @@ public class Bubble implements Serializable {
     }
 
     public Color getColor() {
+        if (color == null) {
+            color = Color.web(colorString);
+        }
         return color;
+    }
+
+    public void setTextColor(Color textColor) {
+        this.textColorString = toRGBCode(textColor);
+    }
+
+    public Color getTextColor() {
+        return Color.web(textColorString);
     }
 
     public void setColor(Color color) {
         this.color = color;
+        this.colorString = toRGBCode(color);
     }
 
     public BubbleType getType() {

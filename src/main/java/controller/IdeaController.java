@@ -2,6 +2,7 @@ package controller;
 
 import canvas.BoundTrack;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -11,6 +12,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -62,7 +64,9 @@ public class IdeaController {
 
     public Pane ideaToPane(Idea idea){
         Pane pane = new StackPane();
+        Bubble bubble = idea.getBubble();
         Text text = new Text(idea.getTheme());
+        text.setFill(bubble.getTextColor());
         Shape shape = ideaToShape(idea);
         Line line = new Line();
         ideaLineMap.put(idea, line);
@@ -74,8 +78,6 @@ public class IdeaController {
             ((Group)scene.getRoot()).getChildren().add(aLine);
         }
         acquaintanceLineMap.put(idea, lineMap);
-
-        text.setFill(getContrastColor((Color)shape.getFill()));
 
         pane.getChildren().addAll(shape, text);
         pane.setOnContextMenuRequested(event -> options(event));
@@ -402,7 +404,7 @@ public class IdeaController {
             Pane pane = (Pane)event.getSource();
             Idea idea = getIdeaFromPane(pane);
             Bubble bubble = idea.getBubble();
-            bubble.setColor(color);
+            bubble.setTextColor(color);
 
             Text text = getTextFromPane(pane);
             text.setFill(color);
@@ -459,6 +461,9 @@ public class IdeaController {
             deleteIdea.getParent().removeChild(deleteIdea);
         }
 
+
+        // Upon delete of an idea with a parent connection, instead of removing line, move it outside of display.
+        // Else, the line will be drawn to empty space from an idea.
         if (deleteIdea.getChildren().size() > 0) {
             for (Idea child : deleteIdea.getChildren()) {
                 Line line =  ideaLineMap.get(child);
@@ -608,7 +613,6 @@ public class IdeaController {
         @Override
         public void handle(MouseEvent event) {
             int menuOffsetY = 20;
-
             double offsetX = event.getSceneX() - orgSceneX;
             double offsetY = event.getSceneY() - orgSceneY;
             double newTranslateX = orgTranslateX + offsetX;
@@ -665,6 +669,7 @@ public class IdeaController {
             for (Idea child : children) {
 
                 Pane end = getIdeaPaneFromGroup(child.getTheme(), ideaGroup);
+                System.out.println("End Pane: " + end);
 
                 Line line = ideaLineMap.get(child);
 
@@ -699,6 +704,7 @@ public class IdeaController {
                 line.setStartY(startY);
                 line.setEndX(endX);
                 line.setEndY(endY);
+                System.out.println("  Child-Parent line: " + line); //TODO: remove
             }
         }
     }
@@ -775,8 +781,8 @@ public class IdeaController {
                         if (text.equals(theme)) {
                             themePane = pane;
                         }
-                    }}
-
+                    }
+                }
             }
         }
 
@@ -1004,8 +1010,9 @@ public class IdeaController {
             PointSer point = ideaPointMap.get(idea);
             pane.setTranslateX(point.getX());
             pane.setTranslateY(point.getY());
-            System.out.println(point);
+
             ideaGroup.getChildren().add(pane);
         }
+
     }
 }
