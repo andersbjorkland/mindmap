@@ -6,9 +6,8 @@ import javafx.scene.shape.Shape;
 public class Cloudy {
 
     public static Shape getShape(double width, double height) {
-        Shape shape = defineCloud(width, height);
 
-        return shape;
+        return defineCloud(width, height);
     }
 
     private static Shape defineCloud(double width, double height) {

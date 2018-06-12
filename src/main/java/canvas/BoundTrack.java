@@ -32,7 +32,7 @@ public class BoundTrack {
         initializeStatusArray();
     }
 
-    public void removeFromBoundsTrack(Bounds bounds) {
+    void removeFromBoundsTrack(Bounds bounds) {
         changeBoundsTrack(bounds, BoundTrackStatus.FREE);
     }
 
@@ -64,7 +64,7 @@ public class BoundTrack {
         }
     }
 
-    public boolean isBinFree(int x, int y) {
+    boolean isBinFree(int x, int y) {
         if (x < 0) {
             x = 0;
         } else if (x >= TRACK_RESOLUTION_X) {
@@ -79,7 +79,7 @@ public class BoundTrack {
         return gridTrack[x][y] == BoundTrackStatus.FREE;
     }
 
-    public boolean isBoundAreaFree(Bounds bounds) {
+    boolean isBoundAreaFree(Bounds bounds) {
         return isCoordinateAreaFree(bounds.getMinX(), bounds.getMinY(), bounds.getMaxX(), bounds.getMaxY());
     }
 
@@ -119,11 +119,11 @@ public class BoundTrack {
         return (trackedHeight / TRACK_RESOLUTION_Y);
     }
 
-    public int getHorizontalBinNumberForXCoordinate(double xCoordinate) {
+    int getHorizontalBinNumberForXCoordinate(double xCoordinate) {
         return (int) (xCoordinate / getHorizontalBinSize());
     }
 
-    public int getVerticalBinNumberForYCoordinate(double yCoordinate) {
+    int getVerticalBinNumberForYCoordinate(double yCoordinate) {
         return (int) (yCoordinate / getVerticalBinSize());
     }
 

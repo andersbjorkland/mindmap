@@ -6,9 +6,8 @@ import javafx.scene.shape.Shape;
 public class Spiky {
 
     public static Shape getShape(double width, double height) {
-        Shape shape = defineSpike(width, height);
 
-        return shape;
+        return defineSpike(width, height);
     }
 
     private static Shape defineSpike(double width, double height) {

@@ -52,11 +52,10 @@ public class Bubble implements Serializable {
             default: shape = new Ellipse(sizeX, sizeY);
         }
 
-        System.out.println(this);
-        System.out.println(colorString);
         if (colorString.length() > 0) {
             color = Color.web(colorString);
         }
+
         shape.setStroke(color);
         shape.setStrokeWidth(lineThickness);
         shape.setFill(Color.WHITE);

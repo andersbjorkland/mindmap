@@ -17,8 +17,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class Display extends Application {
@@ -47,13 +45,10 @@ public class Display extends Application {
 
         ideaGroup = new Group();
         controller = new IdeaController(scene, ideaGroup);
-        ideaTracker = new IdeaTracker(controller);
+        ideaTracker = new IdeaTracker();
 
         Node background = new Canvas(SCENE_WIDTH, SCENE_HEIGHT);
         background.setOnContextMenuRequested(event -> controller.options(event));
-
-        // Create shapes for progress testing.
-                //controller.generateIdeaGroup(IdeaController.mindExample());
 
         MenuBar menuBar = generateMenuBar();
 
@@ -75,14 +70,21 @@ public class Display extends Application {
         MenuBar menuBar = new MenuBar();
         menuBar.setMinWidth(scene.getWidth() + 20);
         Menu menuFile = new Menu("File");
+        MenuItem newMindMap = new MenuItem("New");
+        newMindMap.setOnAction(event -> newMindMap());
         MenuItem save = new MenuItem("Save");
         save.setOnAction(event -> save());
         MenuItem open = new MenuItem("Open");
         open.setOnAction(event -> open());
-        menuFile.getItems().addAll(save, open);
+        menuFile.getItems().addAll(newMindMap, save, open);
         menuBar.getMenus().add(menuFile);
 
         return menuBar;
+    }
+
+    private void newMindMap() {
+        ideaTracker.update(controller);
+        clearScene();
     }
 
     private void save() {
@@ -133,20 +135,12 @@ public class Display extends Application {
     }
 
     private void clearScene() {
-        System.out.println("Clear scene is called.");       //TODO: Remove
         ObservableList<Node> nodes =  ideaGroup.getChildren();
-        List<Node> remove = new ArrayList<>();
         if (nodes.size() > 0) {
-            for (Node node : nodes) {
-                remove.add(node);
-            }
-            if (remove.size() > 0) {
-                System.out.println("Scene is being cleared."); //TODO: Remove
-                controller.removeAllIdeas();
-                ideaTracker.clearTrack();
-                if (ideaGroup.getChildren().size() > 0) {
-                    ideaGroup.getChildren().clear();
-                }
+            controller.removeAllIdeas();
+            ideaTracker.clearTrack();
+            if (ideaGroup.getChildren().size() > 0) {
+                ideaGroup.getChildren().clear();
             }
         }
     }

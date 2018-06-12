@@ -904,7 +904,7 @@ public class IdeaController {
     }
 
     public void unPackToScene(IdeaTracker tracker) {
-        Map<Idea, PointSer> ideaPointMap = tracker.paneSceneTrack;
+        Map<Idea, PointSer> ideaPointMap = tracker.getPaneSceneTrack();
 
         for (Idea idea : ideaPointMap.keySet()) {
             Pane pane = ideaToPane(idea);
