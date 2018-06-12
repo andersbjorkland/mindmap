@@ -1014,5 +1014,142 @@ public class IdeaController {
             ideaGroup.getChildren().add(pane);
         }
 
+        drawLinesOnUnpacking(ideaPointMap);
+    }
+
+    public void drawLinesOnUnpacking(Map<Idea, PointSer> pointmap) {
+        for (Idea idea : ideaLineMap.keySet()) {
+            if (idea.hasChildren()) {
+                Set<Idea> children = idea.getChildren();
+
+                Pane start = getIdeaPaneFromGroup(idea.getTheme(), ideaGroup);
+                Bounds startBoundsInScene = start.localToScene(start.getBoundsInLocal());
+                double startWidth = startBoundsInScene.getWidth();
+                double startHeight = startBoundsInScene.getHeight();
+
+                for (Idea child : children) {
+
+                    Pane end = getIdeaPaneFromGroup(child.getTheme(), ideaGroup);
+
+                    Line line = ideaLineMap.get(child);
+
+                    Bounds endBoundsInScene = end.localToScene(end.getBoundsInLocal());
+
+
+                    // ADJUST START AND END DEPENDING ON WHERE THE SHAPES ARE IN RELATION TO EACH OTHER.
+                    double endWidth = endBoundsInScene.getWidth();
+                    double endHeight = endBoundsInScene.getHeight();
+
+                    double startX = pointmap.get(idea).getX();
+                    double startY = pointmap.get(idea).getY() + startHeight / 2;
+                    double endX = pointmap.get(child).getX();
+                    double endY = pointmap.get(child).getY() + endHeight / 2;
+
+                    System.out.println("Dimensions.\n"
+                            + "IPointX: " + pointmap.get(idea).getX() + "\tIPointY: " + pointmap.get(idea).getY() + "\n"
+                            + "start height: " + startHeight + "\tstart width: " + startWidth +"\n"
+                            + "startX: " + startX + "\tstartY: " + startY + "\n"
+                            + "CPointX: " + pointmap.get(child).getX() + "\tCPointY: " + pointmap.get(child).getY() + "\n"
+                            + "endX: " + endX + "\tendY: " + endY);
+
+                    // START is to the left of END
+                    if ((startX + startWidth)  < endX) {
+                        System.out.println("FIRST CASE");
+                        startX += startWidth;
+                    } else if (startX > (endX + endWidth)) { // START is to the right of END
+                        System.out.println("SECOND CASE");
+                        endX += endWidth;
+                    } else {
+                        // START is above the END
+                        if ((startY + startHeight/2) < endY) {
+                            System.out.println("THIRD CASE");
+                            endY -= endHeight/2;
+                            endX += endWidth/2;
+                            startY += startHeight/2;
+                            startX += startWidth/2;
+                        } else if (startY > (endY + endHeight/2)) { // START is below the END
+                            System.out.println("FOURTH CASE");
+                            endY += endHeight/2;
+                            endX += endWidth/2;
+                            startY -= startHeight/2;
+                            startX += startWidth/2;
+                        } else {
+                            System.out.println("DEFAULT");
+                        }
+                    }
+
+                    line.setStartX(startX);
+                    line.setStartY(startY);
+                    line.setEndX(endX);
+                    line.setEndY(endY);
+                    System.out.println(line);
+                }
+            }
+
+            if (idea.getAcquaintances().size() > 0) {
+                Pane start = getIdeaPaneFromGroup(idea.getTheme(), ideaGroup);
+                Bounds startBoundsInScene = start.localToScene(start.getBoundsInLocal());
+                double startWidth = startBoundsInScene.getWidth();
+                double startHeight = startBoundsInScene.getHeight();
+
+                for (Idea acquaintance : idea.getAcquaintances().keySet()) {
+                    Pane end = getIdeaPaneFromGroup(acquaintance.getTheme(), ideaGroup);
+
+                    Line line = acquaintanceLineMap.get(idea).get(acquaintance);
+                    line.getStrokeDashArray().addAll(5.0, 5.0);
+
+                    Bounds endBoundsInScene = end.localToScene(end.getBoundsInLocal());
+
+
+                    // ADJUST START AND END DEPENDING ON WHERE THE SHAPES ARE IN RELATION TO EACH OTHER.
+                    double endWidth = endBoundsInScene.getWidth();
+                    double endHeight = endBoundsInScene.getHeight();
+
+                    double startX = pointmap.get(idea).getX();
+                    double startY = pointmap.get(idea).getY() + startHeight / 2;
+                    double endX = pointmap.get(acquaintance).getX();
+                    double endY = pointmap.get(acquaintance).getY() + endHeight / 2;
+
+                    System.out.println("Dimensions.\n"
+                            + "IPointX: " + pointmap.get(idea).getX() + "\tIPointY: " + pointmap.get(idea).getY() + "\n"
+                            + "start height: " + startHeight + "\tstart width: " + startWidth + "\n"
+                            + "startX: " + startX + "\tstartY: " + startY + "\n"
+                            + "CPointX: " + pointmap.get(acquaintance).getX() + "\tCPointY: " + pointmap.get(acquaintance).getY() + "\n"
+                            + "endX: " + endX + "\tendY: " + endY);
+
+                    // START is to the left of END
+                    if ((startX + startWidth) < endX) {
+                        System.out.println("FIRST CASE");
+                        startX += startWidth;
+                    } else if (startX > (endX + endWidth)) { // START is to the right of END
+                        System.out.println("SECOND CASE");
+                        endX += endWidth;
+                    } else {
+                        // START is above the END
+                        if ((startY + startHeight / 2) < endY) {
+                            System.out.println("THIRD CASE");
+                            endY -= endHeight / 2;
+                            endX += endWidth / 2;
+                            startY += startHeight / 2;
+                            startX += startWidth / 2;
+                        } else if (startY > (endY + endHeight / 2)) { // START is below the END
+                            System.out.println("FOURTH CASE");
+                            endY += endHeight / 2;
+                            endX += endWidth / 2;
+                            startY -= startHeight / 2;
+                            startX += startWidth / 2;
+                        } else {
+                            System.out.println("DEFAULT");
+                        }
+                    }
+
+                    line.setStartX(startX);
+                    line.setStartY(startY);
+                    line.setEndX(endX);
+                    line.setEndY(endY);
+                    System.out.println(line);
+                }
+            }
+        }
     }
 }
