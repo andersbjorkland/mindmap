@@ -1,5 +1,3 @@
-package canvas;
-
 import controller.IdeaController;
 import controller.IdeaTracker;
 import javafx.application.Application;
