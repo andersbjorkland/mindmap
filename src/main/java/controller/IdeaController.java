@@ -2,7 +2,6 @@ package controller;
 
 import canvas.BoundTrack;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -12,7 +11,6 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -49,20 +47,7 @@ public class IdeaController {
         this.scene.setOnMouseClicked(event -> contextMenu.hide());
     }
 
-    public Collection<Line> getLines() {
-        return ideaLineMap.values();
-    }
-
-    public Group generateIdeaGroup(Idea masterIdea) {
-        Group group = new Group();
-        for (Idea idea : masterIdea.getFamily()) {
-            group.getChildren().add(ideaToPane(idea));
-        }
-        ideaGroup = group;
-        return group;
-    }
-
-    public Pane ideaToPane(Idea idea){
+    private Pane ideaToPane(Idea idea){
         Pane pane = new StackPane();
         Bubble bubble = idea.getBubble();
         Text text = new Text(idea.getTheme());
@@ -80,7 +65,7 @@ public class IdeaController {
         acquaintanceLineMap.put(idea, lineMap);
 
         pane.getChildren().addAll(shape, text);
-        pane.setOnContextMenuRequested(event -> options(event));
+        pane.setOnContextMenuRequested(this::options);
         pane.setOnMousePressed(paneOnMousePressedEventHandler);
         pane.setOnMouseDragged(paneOnMouseDraggedEventHandler);
 
@@ -110,22 +95,9 @@ public class IdeaController {
         bubble.setSizeX((int) width);
         bubble.setSizeY((int) height);
 
-        Shape shape = bubble.getShape();
-
-        return shape;
+        return bubble.getShape();
     }
 
-    /**
-     * Takes a color and returns white or black depending on brightness of color.
-     * Credit to brimborium on https://stackoverflow.com/questions/4672271/reverse-opposing-colors
-     * @param color as the color to be contrasted to.
-     * @return Color.WHITE or Color.BLACK depending on brightness of argument color.
-     */
-    private static Color getContrastColor(Color color) {
-        // Multiplies with 255 to take into account that the example was taken from an awt implementation (not JavaFX)
-        double y = (299 * (color.getRed()*255) + 587 * (color.getGreen()*255) + 114 * (color.getBlue()*255)) / 1000;
-        return y >= 128 ? Color.BLACK : Color.WHITE;
-    }
 
     private void updateTrack() {
         track.cleanBoundsTrack();
@@ -156,9 +128,7 @@ public class IdeaController {
     private EventHandler<MouseEvent> paneOnMousePressedEventHandler = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent event) {
-            if (event.getButton() == MouseButton.SECONDARY) {
-                //options(event);
-            } else {
+            if (event.getButton() != MouseButton.SECONDARY) {
                 orgSceneX = event.getSceneX();
                 orgSceneY = event.getSceneY();
                 orgTranslateX = ((Pane) (event.getSource())).getTranslateX();
@@ -176,8 +146,6 @@ public class IdeaController {
         MenuItem setAsParent;
         MenuItem setAcquaintance;
         MenuItem setAsAcquaintance;
-        MenuItem setShape;
-        MenuItem setThickness;
         MenuItem removeAConnection;
         MenuItem removeThisConnection;
         MenuItem delete;
@@ -376,10 +344,9 @@ public class IdeaController {
         bubble.setSizeY(sizeY);
         bubble.setSizeX(sizeX);
 
-        Node original = shape;
         Node newNode = bubble.getShape();
 
-        replaceNodeOnPane(pane, original, newNode);
+        replaceNodeOnPane(pane, shape, newNode);
 
     }
 
@@ -393,7 +360,7 @@ public class IdeaController {
             }
         }
 
-        boolean isRemoved = pane.getChildren().remove(paneNode);
+        pane.getChildren().remove(paneNode);
         pane.getChildren().add(zIndex, replaceWith);
 
     }
@@ -450,7 +417,6 @@ public class IdeaController {
         }
 
 
-        System.out.println("Clearing acquaintances..." + deleteIdea); //TODO: remove
         for (Idea idea : deleteIdea.getAcquaintances().keySet()) {
             removeNodeFromScene(acquaintanceLineMap.get(deleteIdea).get(idea));
             acquaintanceLineMap.get(deleteIdea).remove(idea);
@@ -522,12 +488,11 @@ public class IdeaController {
 
     private void optionRemoveConnection(ContextMenuEvent event) {
         Pane pane = (Pane) event.getSource();
-        Idea idea = getIdeaFromPane(pane);
-        manipulatedIdea = idea;
+        manipulatedIdea = getIdeaFromPane(pane);
         selectionState = SelectionState.REMOVE_CONNECTION;
     }
 
-    public void optionCreate(ContextMenuEvent event) {
+    private void optionCreate(ContextMenuEvent event) {
         double sceneX = event.getSceneX();
         double sceneY = event.getSceneY();
 
@@ -536,8 +501,7 @@ public class IdeaController {
 
     private void optionSetParent(ContextMenuEvent event) {
         Pane pane = (Pane) event.getSource();
-        Idea child = getIdeaFromPane(pane);
-        manipulatedIdea = child;
+        manipulatedIdea = getIdeaFromPane(pane);
         selectionState = SelectionState.SELECT_PARENT;
     }
 
@@ -557,8 +521,7 @@ public class IdeaController {
 
     private void optionSetAcquaintance(ContextMenuEvent event) {
         Pane pane = (Pane) event.getSource();
-        Idea acquaintance = getIdeaFromPane(pane);
-        manipulatedIdea = acquaintance;
+        manipulatedIdea = getIdeaFromPane(pane);
         selectionState = SelectionState.SELECT_ACQUAINTANCE;
     }
 
@@ -573,7 +536,7 @@ public class IdeaController {
         updateLines(ideaGroup);
     }
 
-    public void optionCreateThoughtAt(double x, double y) {
+    private void optionCreateThoughtAt(double x, double y) {
         String theme;
         Idea idea;
 
@@ -585,12 +548,12 @@ public class IdeaController {
         dialog.setHeaderText("");
         dialog.setTitle("Add an idea");
         dialog.setContentText("Enter an idea:");
-        Optional<String> result = dialog.showAndWait();
+        Optional result = dialog.showAndWait();
 
         // create the Idea with the info of a theme
         // create a basic Bubble (Ellipse shape)
-        if (result.isPresent() && result.get().length() > 0) {
-            theme = result.get();
+        if (result.isPresent() && ((String)result.get()).length() > 0) {
+            theme = (String)result.get();
             if (getIdeaByTheme(theme) == null) {
                 idea = new Idea(theme);
                 Pane pane = ideaToPane(idea);
@@ -660,16 +623,14 @@ public class IdeaController {
     }
 
     private void drawLineBetweenIdeaShapes(Group ideaGroup, Idea idea) {
-        Idea parent = idea;
-        if (parent.hasChildren()) {
-            Set<Idea> children = parent.getChildren();
+        if (idea.hasChildren()) {
+            Set<Idea> children = idea.getChildren();
 
-            Pane start = getIdeaPaneFromGroup(parent.getTheme(), ideaGroup);
+            Pane start = getIdeaPaneFromGroup(idea.getTheme(), ideaGroup);
 
             for (Idea child : children) {
 
                 Pane end = getIdeaPaneFromGroup(child.getTheme(), ideaGroup);
-                System.out.println("End Pane: " + end);
 
                 Line line = ideaLineMap.get(child);
 
@@ -704,7 +665,6 @@ public class IdeaController {
                 line.setStartY(startY);
                 line.setEndX(endX);
                 line.setEndY(endY);
-                System.out.println("  Child-Parent line: " + line); //TODO: remove
             }
         }
     }
@@ -755,7 +715,7 @@ public class IdeaController {
         }
     }
 
-    public Point2D getScenePointFromPane(Pane pane) {
+    private Point2D getScenePointFromPane(Pane pane) {
 
         double x = pane.getTranslateX();
         double y = pane.getTranslateY();
@@ -763,7 +723,7 @@ public class IdeaController {
         return new Point2D(x, y);
     }
 
-    public Point2D getScenePointFromIdea(Idea idea) {
+    Point2D getScenePointFromIdea(Idea idea) {
         Pane pane = getIdeaPaneFromGroup(idea.getTheme(), ideaGroup);
         return getScenePointFromPane(pane);
     }
@@ -853,7 +813,6 @@ public class IdeaController {
 
         // if no space is available, don't move pane, so reset variables.
         if (!track.isCoordinateAreaFree(coordinateMinX, coordinateMinY, coordinateMaxX, coordinateMaxY)) {
-            System.out.println("DEFAULTING");
             coordinateMinX = bounds.getMinX();
             coordinateMinY = bounds.getMinY();
         }
@@ -917,10 +876,6 @@ public class IdeaController {
         return text;
     }
 
-    public SelectionState getSelectionState() {
-        return selectionState;
-    }
-
     private void addNodeToScene(Node node) {
         ((Group)scene.getRoot()).getChildren().add(node);
     }
@@ -929,59 +884,7 @@ public class IdeaController {
         ((Group)scene.getRoot()).getChildren().remove(node);
     }
 
-    /*
-     * Example of how a mind can be structured.
-     */
-    public static Idea mindExample() {
-
-        Idea dogs = new Idea("Dogs", true);
-        dogs.getBubble().setColor(Color.RED);
-        dogs.getBubble().setLineThickness(2);
-        dogs.getBubble().setType(BubbleType.ELLIPSE);
-
-        Idea big = new Idea("Big");
-        dogs.addChild(big, IdeaConnectionType.BRANCH);
-        big.getBubble().setColor(Color.BLUE);
-        big.getBubble().setLineThickness(3);
-
-        Idea small = new Idea("Small");
-        dogs.addChild(small, IdeaConnectionType.BRANCH);
-        small.getBubble().setColor(Color.DARKGREEN);
-
-        Idea greyhound = new Idea("Greyhound");
-        big.addChild(greyhound, IdeaConnectionType.BRANCH);
-
-        Idea chihuahua = new Idea("Chihuahua");
-        small.addChild(chihuahua, IdeaConnectionType.BRANCH);
-
-        Idea cute = new Idea("Cute");
-        chihuahua.addAcquaintance(cute, IdeaConnectionType.EXPLANATION);
-
-        Idea typeOfDog = new Idea("Type of dog");
-        big.addAcquaintance(typeOfDog, IdeaConnectionType.EXPLANATION);
-        small.addAcquaintance(typeOfDog, IdeaConnectionType.EXPLANATION);
-
-        Idea terrier = new Idea("Terrier");
-        small.addChild(terrier, IdeaConnectionType.BRANCH);
-
-        Idea goldenRetriever = new Idea("Golden Retriever");
-        big.addChild(goldenRetriever, IdeaConnectionType.BRANCH);
-
-        goldenRetriever.getBubble().setType(BubbleType.CLOUD);
-        chihuahua.getBubble().setType(BubbleType.SPIKY);
-
-        Idea a = new Idea("Happiness");
-        dogs.addChild(a, IdeaConnectionType.POINT);
-
-        Idea mainIdea = dogs;
-        return mainIdea;
-    }
-
-    public Scene getScene() {
-        return scene;
-    }
-
-    public Set<Idea> getAllIdeas() {
+    Set<Idea> getAllIdeas() {
         Set<Idea> ideas = new HashSet<>();
 
         ideas.addAll(ideaLineMap.keySet());
@@ -998,8 +901,6 @@ public class IdeaController {
             deleteIdea(getIdeaPaneFromGroup(idea.getTheme(), ideaGroup));
         }
 
-        //ideaLineMap.clear();      TODO: clear
-        //acquaintanceLineMap.clear();  TODO: clear
     }
 
     public void unPackToScene(IdeaTracker tracker) {
@@ -1017,7 +918,7 @@ public class IdeaController {
         drawLinesOnUnpacking(ideaPointMap);
     }
 
-    public void drawLinesOnUnpacking(Map<Idea, PointSer> pointmap) {
+    private void drawLinesOnUnpacking(Map<Idea, PointSer> pointmap) {
         for (Idea idea : ideaLineMap.keySet()) {
             if (idea.hasChildren()) {
                 Set<Idea> children = idea.getChildren();
@@ -1035,7 +936,6 @@ public class IdeaController {
 
                     Bounds endBoundsInScene = end.localToScene(end.getBoundsInLocal());
 
-
                     // ADJUST START AND END DEPENDING ON WHERE THE SHAPES ARE IN RELATION TO EACH OTHER.
                     double endWidth = endBoundsInScene.getWidth();
                     double endHeight = endBoundsInScene.getHeight();
@@ -1045,36 +945,23 @@ public class IdeaController {
                     double endX = pointmap.get(child).getX();
                     double endY = pointmap.get(child).getY() + endHeight / 2;
 
-                    System.out.println("Dimensions.\n"
-                            + "IPointX: " + pointmap.get(idea).getX() + "\tIPointY: " + pointmap.get(idea).getY() + "\n"
-                            + "start height: " + startHeight + "\tstart width: " + startWidth +"\n"
-                            + "startX: " + startX + "\tstartY: " + startY + "\n"
-                            + "CPointX: " + pointmap.get(child).getX() + "\tCPointY: " + pointmap.get(child).getY() + "\n"
-                            + "endX: " + endX + "\tendY: " + endY);
-
                     // START is to the left of END
                     if ((startX + startWidth)  < endX) {
-                        System.out.println("FIRST CASE");
                         startX += startWidth;
                     } else if (startX > (endX + endWidth)) { // START is to the right of END
-                        System.out.println("SECOND CASE");
                         endX += endWidth;
                     } else {
                         // START is above the END
                         if ((startY + startHeight/2) < endY) {
-                            System.out.println("THIRD CASE");
                             endY -= endHeight/2;
                             endX += endWidth/2;
                             startY += startHeight/2;
                             startX += startWidth/2;
                         } else if (startY > (endY + endHeight/2)) { // START is below the END
-                            System.out.println("FOURTH CASE");
                             endY += endHeight/2;
                             endX += endWidth/2;
                             startY -= startHeight/2;
                             startX += startWidth/2;
-                        } else {
-                            System.out.println("DEFAULT");
                         }
                     }
 
@@ -1082,7 +969,6 @@ public class IdeaController {
                     line.setStartY(startY);
                     line.setEndX(endX);
                     line.setEndY(endY);
-                    System.out.println(line);
                 }
             }
 
@@ -1100,7 +986,6 @@ public class IdeaController {
 
                     Bounds endBoundsInScene = end.localToScene(end.getBoundsInLocal());
 
-
                     // ADJUST START AND END DEPENDING ON WHERE THE SHAPES ARE IN RELATION TO EACH OTHER.
                     double endWidth = endBoundsInScene.getWidth();
                     double endHeight = endBoundsInScene.getHeight();
@@ -1110,36 +995,23 @@ public class IdeaController {
                     double endX = pointmap.get(acquaintance).getX();
                     double endY = pointmap.get(acquaintance).getY() + endHeight / 2;
 
-                    System.out.println("Dimensions.\n"
-                            + "IPointX: " + pointmap.get(idea).getX() + "\tIPointY: " + pointmap.get(idea).getY() + "\n"
-                            + "start height: " + startHeight + "\tstart width: " + startWidth + "\n"
-                            + "startX: " + startX + "\tstartY: " + startY + "\n"
-                            + "CPointX: " + pointmap.get(acquaintance).getX() + "\tCPointY: " + pointmap.get(acquaintance).getY() + "\n"
-                            + "endX: " + endX + "\tendY: " + endY);
-
                     // START is to the left of END
                     if ((startX + startWidth) < endX) {
-                        System.out.println("FIRST CASE");
                         startX += startWidth;
                     } else if (startX > (endX + endWidth)) { // START is to the right of END
-                        System.out.println("SECOND CASE");
                         endX += endWidth;
                     } else {
                         // START is above the END
                         if ((startY + startHeight / 2) < endY) {
-                            System.out.println("THIRD CASE");
                             endY -= endHeight / 2;
                             endX += endWidth / 2;
                             startY += startHeight / 2;
                             startX += startWidth / 2;
                         } else if (startY > (endY + endHeight / 2)) { // START is below the END
-                            System.out.println("FOURTH CASE");
                             endY += endHeight / 2;
                             endX += endWidth / 2;
                             startY -= startHeight / 2;
                             startX += startWidth / 2;
-                        } else {
-                            System.out.println("DEFAULT");
                         }
                     }
 
@@ -1147,7 +1019,6 @@ public class IdeaController {
                     line.setStartY(startY);
                     line.setEndX(endX);
                     line.setEndY(endY);
-                    System.out.println(line);
                 }
             }
         }
