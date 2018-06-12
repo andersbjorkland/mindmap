@@ -11,7 +11,7 @@ import java.io.Serializable;
 
 /**
  * Instructions for the shape of thought bubble in the mind map,
- * its color, its thickness and its size
+ * its color, its thickness and its size.
  */
 public class Bubble implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -23,7 +23,7 @@ public class Bubble implements Serializable {
     private int sizeX;
     private int sizeY;
 
-    Bubble(Color color, BubbleType type, int lineThickness, int sizeX, int sizeY) {
+    private Bubble(Color color, BubbleType type, int lineThickness, int sizeX, int sizeY) {
         this.color = color;
         this.type = type;
         this.lineThickness = lineThickness;
@@ -31,24 +31,6 @@ public class Bubble implements Serializable {
         this.sizeY = sizeY;
         this.colorString = toRGBCode(color);
         this.textColorString =  toRGBCode(Color.BLACK);
-        System.out.println("Bubble created: " + this);
-    }
-
-    Bubble(Color color, BubbleType type, int sizeX, int sizeY) {
-        this(color, type, 2, sizeX, sizeY);
-    }
-
-    /**
-     * Default bubble type i Ellipse, and color black
-     * @param sizeX is width in pixels
-     * @param sizeY is height in pixels
-     */
-    public Bubble(int sizeX, int sizeY) {
-        this(Color.BLACK, BubbleType.ELLIPSE, sizeX, sizeY);
-    }
-
-    public Bubble(String colorString, BubbleType type, int lineThickness, int sizeX, int sizeY) {
-        this(Color.web(colorString), type, lineThickness, sizeX, sizeY);
     }
 
     Bubble() {
@@ -81,7 +63,7 @@ public class Bubble implements Serializable {
         return shape;
     }
 
-    public Color getColor() {
+    Color getColor() {
         if (color == null) {
             color = Color.web(colorString);
         }
@@ -101,20 +83,12 @@ public class Bubble implements Serializable {
         this.colorString = toRGBCode(color);
     }
 
-    public BubbleType getType() {
+    BubbleType getType() {
         return type;
     }
 
     public void setType(BubbleType type) {
         this.type = type;
-    }
-
-    public int getLineThickness() {
-        return lineThickness;
-    }
-
-    public void setLineThickness(int lineThickness) {
-        this.lineThickness = lineThickness;
     }
 
     public int getSizeX() {
@@ -133,7 +107,7 @@ public class Bubble implements Serializable {
         this.sizeY = sizeY;
     }
 
-    public static String toRGBCode(Color color) {
+    private static String toRGBCode(Color color) {
         return String.format( "#%02X%02X%02X",
                 (int)( color.getRed() * 255 ),
                 (int)( color.getGreen() * 255 ),
