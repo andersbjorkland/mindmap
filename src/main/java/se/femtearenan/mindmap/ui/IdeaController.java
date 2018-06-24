@@ -19,10 +19,7 @@ import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import se.femtearenan.mindmap.model.*;
-import se.femtearenan.mindmap.utility.IdeaTracker;
-import se.femtearenan.mindmap.utility.PointSer;
-import se.femtearenan.mindmap.utility.SelectionState;
-import se.femtearenan.mindmap.utility.SizeChoice;
+import se.femtearenan.mindmap.utility.*;
 
 import java.util.*;
 
@@ -32,19 +29,20 @@ public class IdeaController {
     private double orgSceneX, orgSceneY;
     private double orgTranslateX, orgTranslateY;
     private Map<Idea, Line> ideaLineMap = new HashMap<>();
-    private Map<Idea, Map<Idea, Line>> acquaintanceLineMap = new HashMap<>();
     private Group ideaGroup = new Group();
 
     // State of manipulation
     private SelectionState selectionState = SelectionState.NONE;
     private Idea manipulatedIdea;
     private ContextMenu contextMenu;
+    private LineDrawer lineDrawer;
 
     public IdeaController(Scene scene, Group ideaGroup) {
         this.scene = scene;
         this.ideaGroup = ideaGroup;
         contextMenu = new ContextMenu();
         this.scene.setOnMouseClicked(event -> contextMenu.hide());
+        lineDrawer = new LineDrawer(this);
     }
 
     private Pane ideaToPane(Idea idea){
@@ -56,13 +54,7 @@ public class IdeaController {
         Line line = new Line();
         ideaLineMap.put(idea, line);
 
-        Map<Idea, Line> lineMap = new HashMap<>();
-        for (Idea acquaintance : idea.getAcquaintances().keySet()) {
-            Line aLine = new Line();
-            lineMap.put(acquaintance, aLine);
-            ((Group)scene.getRoot()).getChildren().add(aLine);
-        }
-        acquaintanceLineMap.put(idea, lineMap);
+        lineDrawer.addAcquaintanceLines(idea);
 
         pane.getChildren().addAll(shape, text);
         pane.setOnContextMenuRequested(this::options);
@@ -403,16 +395,16 @@ public class IdeaController {
             if (idea != deleteIdea) {
                 if (idea.hasThisAcquaintance(deleteIdea)) {
                     idea.removeAcquaintance(deleteIdea);
-                    removeNodeFromScene(acquaintanceLineMap.get(idea).get(deleteIdea));
-                    acquaintanceLineMap.get(idea).remove(deleteIdea);
+                    removeNodeFromScene(lineDrawer.getAcquaintanceLine(idea, deleteIdea));
+                    lineDrawer.removeAcquaintanceLine(idea, deleteIdea);
                 }
             }
         }
 
 
         for (Idea idea : deleteIdea.getAcquaintances().keySet()) {
-            removeNodeFromScene(acquaintanceLineMap.get(deleteIdea).get(idea));
-            acquaintanceLineMap.get(deleteIdea).remove(idea);
+            removeNodeFromScene(lineDrawer.getAcquaintanceLine(deleteIdea, idea));
+            lineDrawer.removeAcquaintanceLine(deleteIdea, idea);
         }
 
 
@@ -454,8 +446,8 @@ public class IdeaController {
             // check if connection is acquaintance
             if (connectedIdea.hasThisAcquaintance(manipulatedIdea)) {
                 connectedIdea.removeAcquaintance(manipulatedIdea);
-                removeNodeFromScene(acquaintanceLineMap.get(connectedIdea).get(manipulatedIdea));
-                acquaintanceLineMap.get(connectedIdea).remove(manipulatedIdea);
+                removeNodeFromScene(lineDrawer.getAcquaintanceLine(connectedIdea, manipulatedIdea));
+                lineDrawer.removeAcquaintanceLine(connectedIdea, manipulatedIdea);
             }
 
             if (manipulatedIdea.hasThisChild(connectedIdea)) {
@@ -469,8 +461,8 @@ public class IdeaController {
 
             if (manipulatedIdea.hasThisAcquaintance(connectedIdea)) {
                 manipulatedIdea.removeAcquaintance(connectedIdea);
-                removeNodeFromScene(acquaintanceLineMap.get(manipulatedIdea).get(connectedIdea));
-                acquaintanceLineMap.get(manipulatedIdea).remove(connectedIdea);
+                removeNodeFromScene(lineDrawer.getAcquaintanceLine(manipulatedIdea, connectedIdea));
+                lineDrawer.removeAcquaintanceLine(manipulatedIdea, connectedIdea);
             }
             // if no connection, do nothing
         }
@@ -601,17 +593,14 @@ public class IdeaController {
     };
 
     private void addAcquaintance(Idea idea, IdeaConnectionType connectionType) {
-        Line line = new Line();
         idea.addAcquaintance(manipulatedIdea, connectionType);
-        acquaintanceLineMap.get(idea).put(manipulatedIdea, line);
-        addNodeToScene(line);
-        drawAcquaintanceLines(idea);
+        lineDrawer.addAcquaintanceLine(idea, manipulatedIdea);
     }
 
     public void updateLines(Group ideaGroup) {
         for (Idea idea : ideaLineMap.keySet()) {
             drawLineBetweenIdeaShapes(ideaGroup, idea);
-            drawAcquaintanceLines(idea);
+            lineDrawer.drawAcquaintanceLines(idea);
         }
     }
 
@@ -662,51 +651,7 @@ public class IdeaController {
         }
     }
 
-    private void drawAcquaintanceLines(Idea idea) {
-        if (idea.getAcquaintances().size() > 0) {
-            Pane start = getIdeaPaneFromGroup(idea.getTheme(), ideaGroup);
 
-            for (Idea acquaintance : idea.getAcquaintances().keySet()) {
-
-                Pane end = getIdeaPaneFromGroup(acquaintance.getTheme(), ideaGroup);
-
-                Line line = acquaintanceLineMap.get(idea).get(acquaintance);
-                line.getStrokeDashArray().addAll(5.0, 5.0);
-
-                Bounds startBoundsInScene = start.localToScene(start.getBoundsInLocal());
-                Bounds endBoundsInScene = end.localToScene(end.getBoundsInLocal());
-
-                // ADJUST START AND END DEPENDING ON WHERE THE SHAPES ARE IN RELATION TO EACH OTHER.
-                double startX = startBoundsInScene.getMinX() + startBoundsInScene.getWidth() / 2;
-                double startY = startBoundsInScene.getMinY() + startBoundsInScene.getHeight() / 2;
-                double endX = endBoundsInScene.getMinX() + endBoundsInScene.getWidth() / 2;
-                double endY = endBoundsInScene.getMinY() + endBoundsInScene.getHeight() / 2;
-
-                // START is to the left of END
-                if (startBoundsInScene.getMaxX() < endBoundsInScene.getMinX()) {
-                    startX = startBoundsInScene.getMaxX();
-                    endX = endBoundsInScene.getMinX();
-                } else if (startBoundsInScene.getMinX() > endBoundsInScene.getMaxX()) { // START is to the right of END
-                    startX = startBoundsInScene.getMinX();
-                    endX = endBoundsInScene.getMaxX();
-                } else {
-                    // START is above the END
-                    if (startBoundsInScene.getMaxY() < endBoundsInScene.getMinY()) {
-                        startY = startBoundsInScene.getMaxY();
-                        endY = endBoundsInScene.getMinY();
-                    } else if (startBoundsInScene.getMinY() > endBoundsInScene.getMaxY()) { // START is below the END
-                        startY = startBoundsInScene.getMinY();
-                        endY = endBoundsInScene.getMaxY();
-                    }
-                }
-
-                line.setStartX(startX);
-                line.setStartY(startY);
-                line.setEndX(endX);
-                line.setEndY(endY);
-            }
-        }
-    }
 
     private Point2D getScenePointFromPane(Pane pane) {
 
@@ -740,6 +685,11 @@ public class IdeaController {
         }
 
         return themePane;
+    }
+
+    public Pane getIdeaPaneFromGroup(String theme) {
+
+        return getIdeaPaneFromGroup(theme, ideaGroup);
     }
 
     private Idea getIdeaFromPane(Pane shapePane) {
@@ -798,7 +748,11 @@ public class IdeaController {
         return ideaGroup;
     }
 
-    private void addNodeToScene(Node node) {
+    public Scene getScene() {
+        return scene;
+    }
+
+    public void addNodeToScene(Node node) {
         ((Group)scene.getRoot()).getChildren().add(node);
     }
 
@@ -903,7 +857,7 @@ public class IdeaController {
                 for (Idea acquaintance : idea.getAcquaintances().keySet()) {
                     Pane end = getIdeaPaneFromGroup(acquaintance.getTheme(), ideaGroup);
 
-                    Line line = acquaintanceLineMap.get(idea).get(acquaintance);
+                    Line line = lineDrawer.getAcquaintanceLine(idea, acquaintance);
                     line.getStrokeDashArray().addAll(5.0, 5.0);
 
                     Bounds endBoundsInScene = end.localToScene(end.getBoundsInLocal());
