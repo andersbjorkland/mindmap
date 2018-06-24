@@ -26,7 +26,6 @@ public class IdeaController {
     private Group ideaGroup = new Group();
 
     // State of manipulation
-    private ContextMenu contextMenu;
     private ContextMenuController contextMenuController;
     private LineDrawer lineDrawer;
     private Set<Idea> ideas;
@@ -34,9 +33,8 @@ public class IdeaController {
     public IdeaController(Scene scene, Group ideaGroup) {
         this.scene = scene;
         this.ideaGroup = ideaGroup;
-        contextMenu = new ContextMenu();
         contextMenuController = new ContextMenuController(this);
-        this.scene.setOnMouseClicked(event -> contextMenu.hide());
+        this.scene.setOnMouseClicked(event -> contextMenuController.hideMenu());
         lineDrawer = new LineDrawer(this);
         ideas = new HashSet<>();
     }

@@ -14,17 +14,25 @@ import se.femtearenan.mindmap.utility.SizeChoice;
 public class ContextMenuController {
     private SelectionState selectionState;
     private ContextMenuActions actions;
+    private ContextMenu contextMenu;
 
     ContextMenuController(IdeaController controller) {
         actions = new ContextMenuActions(controller, this);
+        selectionState = SelectionState.NONE;
     }
 
     void setSelectionState(SelectionState state) {
         selectionState = state;
     }
 
+    void hideMenu() {
+        if (contextMenu != null) {
+            contextMenu.hide();
+        }
+    }
+
     public void options(ContextMenuEvent event) {
-        ContextMenu contextMenu = new ContextMenu();
+        contextMenu = new ContextMenu();
 
         // Declare all menu items.
         MenuItem create;
