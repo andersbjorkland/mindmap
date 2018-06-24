@@ -12,13 +12,10 @@ import se.femtearenan.mindmap.utility.SelectionState;
 import se.femtearenan.mindmap.utility.SizeChoice;
 
 public class ContextMenuController {
-    private IdeaController controller;
-    private ContextMenu contextMenu;
     private SelectionState selectionState;
     private ContextMenuActions actions;
 
     ContextMenuController(IdeaController controller) {
-        this.controller = controller;
         actions = new ContextMenuActions(controller, this);
     }
 
@@ -27,7 +24,7 @@ public class ContextMenuController {
     }
 
     public void options(ContextMenuEvent event) {
-        contextMenu = new ContextMenu();
+        ContextMenu contextMenu = new ContextMenu();
 
         // Declare all menu items.
         MenuItem create;
