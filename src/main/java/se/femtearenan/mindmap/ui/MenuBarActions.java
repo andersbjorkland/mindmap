@@ -9,14 +9,14 @@ import javafx.stage.Stage;
 
 import java.io.*;
 
-public class MenuActions {
+public class MenuBarActions {
     private IdeaController controller;
     private Stage stage;
     private Group ideaGroup;
     private IdeaTracker ideaTracker;
 
 
-    public MenuActions(IdeaController controller, Stage stage) {
+    public MenuBarActions(IdeaController controller, Stage stage) {
         this.controller = controller;
         this.stage = stage;
         this.ideaGroup = controller.getIdeaGroup();

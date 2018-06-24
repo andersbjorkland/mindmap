@@ -10,8 +10,8 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import se.femtearenan.mindmap.ui.MenuActions;
-import se.femtearenan.mindmap.ui.MenuGenerator;
+import se.femtearenan.mindmap.ui.MenuBarActions;
+import se.femtearenan.mindmap.ui.MenuBarGenerator;
 
 
 public class Display extends Application {
@@ -40,10 +40,10 @@ public class Display extends Application {
         controller = new IdeaController(scene, ideaGroup);
 
         Node background = new Canvas(SCENE_WIDTH, SCENE_HEIGHT);
-        background.setOnContextMenuRequested(event -> controller.options(event));
+        background.setOnContextMenuRequested(event -> controller.getContextMenuController().options(event));
 
-        MenuActions menuActions = new MenuActions(controller, stage);
-        MenuBar menuBar = new MenuGenerator(menuActions).getMenuBar();
+        MenuBarActions menuBarActions = new MenuBarActions(controller, stage);
+        MenuBar menuBar = new MenuBarGenerator(menuBarActions).getMenuBar();
 
         root.getChildren().addAll(background, ideaGroup, menuBar);
 

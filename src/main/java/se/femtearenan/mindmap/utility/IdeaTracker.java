@@ -25,7 +25,7 @@ public class IdeaTracker implements Serializable{
     }
 
     private void populateMap(IdeaController controller) {
-        Set<Idea> ideas = controller.getAllIdeas();
+        Set<Idea> ideas = controller.getIdeas();
 
         for (Idea idea : ideas) {
             addIdeaToMap(idea, controller);

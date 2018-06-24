@@ -5,11 +5,11 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import se.femtearenan.mindmap.Display;
 
-public class MenuGenerator {
-    private MenuActions actions;
+public class MenuBarGenerator {
+    private MenuBarActions actions;
     private MenuBar menuBar;
 
-    public MenuGenerator(MenuActions actions) {
+    public MenuBarGenerator(MenuBarActions actions) {
         this.actions = actions;
         menuBar = generateMenuBar();
     }
