@@ -1,6 +1,5 @@
 package controller;
 
-import canvas.BoundTrack;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -26,7 +25,6 @@ import java.util.*;
 public class IdeaController {
 
     private Scene scene;
-    private BoundTrack track;
     private double orgSceneX, orgSceneY;
     private double orgTranslateX, orgTranslateY;
     private Map<Idea, Line> ideaLineMap = new HashMap<>();
@@ -41,7 +39,6 @@ public class IdeaController {
     public IdeaController(Scene scene, Group ideaGroup) {
         this.scene = scene;
         this.ideaGroup = ideaGroup;
-        track = new BoundTrack(scene.getWidth(), scene.getHeight());
         contextMenu = new ContextMenu();
         this.scene.setOnMouseClicked(event -> contextMenu.hide());
     }
@@ -97,13 +94,6 @@ public class IdeaController {
         return bubble.getShape();
     }
 
-
-    private void updateTrack() {
-        track.cleanBoundsTrack();
-        for (Pane pane : extractPanesFromGroup(ideaGroup)) {
-            track.addOnBoundsTrack(retrieveBoundsForPane(pane));
-        }
-    }
 
     public List<Pane> extractPanesFromGroup(Group group) {
         List<Pane> panes = new ArrayList<>();
@@ -746,81 +736,6 @@ public class IdeaController {
         }
 
         return themePane;
-    }
-
-    public void moveListOfPanesToFreeSpace(List<Pane> panes) {
-        for (Pane pane : panes) {
-            movePaneToFreeSpace(pane);
-        }
-    }
-
-    private void movePaneToFreeSpace(Pane pane) {
-        Bounds bounds = retrieveBoundsForPane(pane);
-
-        int generationLevel = getIdeaFromPane(pane).getChildLevel();
-        if (generationLevel == -1) {
-            generationLevel = 4;
-        }
-
-        double xIncrement = track.getHorizontalBinSize() + 10;
-        double yIncrement = track.getVerticalBinSize() + 25;
-
-        // Policy is to start looking downwards from top center scene
-        // then from left to right
-        // in increments of pane height and width
-        double yMenuOffset = 30;
-        double coordinateMinX = (scene.getWidth() - bounds.getWidth()) / 2;
-        double coordinateMinY = generationLevel * yIncrement + yMenuOffset;
-        double coordinateMaxX = coordinateMinX + bounds.getWidth();
-        double coordinateMaxY = coordinateMinY + bounds.getHeight();
-
-
-        // test if area is free
-        int horizontalIncrements = 0;
-        while ( (!track.isCoordinateAreaFree(coordinateMinX, coordinateMinY, coordinateMaxX, coordinateMaxY)) &&
-                coordinateMaxY < (scene.getHeight() - bounds.getHeight()) ) {
-
-
-            // move from center to the edges in increments of bin-sizes
-            double x = (scene.getWidth() - bounds.getWidth()) / 2;
-            double leftX = x;
-            double rightX = x;
-            for (int i = 1; i <= BoundTrack.TRACK_RESOLUTION_X; i++) {
-
-                if (i % 2 == 0) {
-                    leftX -= xIncrement + 1;
-                    x = leftX;
-                } else {
-                    rightX += xIncrement - 1;
-                    x = rightX;
-                }
-                coordinateMinX = x;
-                coordinateMaxX = coordinateMinX + bounds.getWidth();
-
-                if (track.isCoordinateAreaFree(coordinateMinX, coordinateMinY, coordinateMaxX, coordinateMaxY)) {
-                    break;
-                }
-            }
-
-            // move down one increment
-            if (horizontalIncrements != 0) {
-                coordinateMinY += yIncrement;
-                coordinateMaxY = coordinateMinY + bounds.getHeight();
-            }
-            horizontalIncrements++;
-        }
-
-        // if no space is available, don't move pane, so reset variables.
-        if (!track.isCoordinateAreaFree(coordinateMinX, coordinateMinY, coordinateMaxX, coordinateMaxY)) {
-            coordinateMinX = bounds.getMinX();
-            coordinateMinY = bounds.getMinY();
-        }
-
-        // now move the pane to the coordinates acquired.
-        pane.setTranslateX(coordinateMinX);
-        pane.setTranslateY(coordinateMinY);
-
-        updateTrack();
     }
 
     private Idea getIdeaFromPane(Pane shapePane) {

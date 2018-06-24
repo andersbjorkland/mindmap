@@ -53,7 +53,6 @@ public class Display extends Application {
         primaryStage.setTitle("Mind Map");
         primaryStage.show();
 
-        controller.moveListOfPanesToFreeSpace(controller.extractPanesFromGroup(ideaGroup));
         controller.updateLines(ideaGroup);
 
     }
