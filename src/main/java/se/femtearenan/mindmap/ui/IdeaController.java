@@ -14,7 +14,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -28,7 +27,6 @@ public class IdeaController {
     private Scene scene;
     private double orgSceneX, orgSceneY;
     private double orgTranslateX, orgTranslateY;
-    private Map<Idea, Line> ideaLineMap = new HashMap<>();
     private Group ideaGroup = new Group();
 
     // State of manipulation
@@ -36,6 +34,7 @@ public class IdeaController {
     private Idea manipulatedIdea;
     private ContextMenu contextMenu;
     private LineDrawer lineDrawer;
+    private Set<Idea> ideas;
 
     public IdeaController(Scene scene, Group ideaGroup) {
         this.scene = scene;
@@ -43,17 +42,17 @@ public class IdeaController {
         contextMenu = new ContextMenu();
         this.scene.setOnMouseClicked(event -> contextMenu.hide());
         lineDrawer = new LineDrawer(this);
+        ideas = new HashSet<>();
     }
 
     private Pane ideaToPane(Idea idea){
+        ideas.add(idea);
         Pane pane = new StackPane();
         Bubble bubble = idea.getBubble();
         Text text = new Text(idea.getTheme());
         text.setFill(bubble.getTextColor());
         Shape shape = ideaToShape(idea);
-        Line line = new Line();
-        ideaLineMap.put(idea, line);
-
+        lineDrawer.addIdeaLine(idea);
         lineDrawer.addAcquaintanceLines(idea);
 
         pane.getChildren().addAll(shape, text);
@@ -61,7 +60,6 @@ public class IdeaController {
         pane.setOnMousePressed(paneOnMousePressedEventHandler);
         pane.setOnMouseDragged(paneOnMouseDraggedEventHandler);
 
-        ((Group)scene.getRoot()).getChildren().add(line);
         return pane;
     }
 
@@ -91,24 +89,8 @@ public class IdeaController {
     }
 
 
-    public List<Pane> extractPanesFromGroup(Group group) {
-        List<Pane> panes = new ArrayList<>();
-
-        for (Node node : group.getChildren()) {
-            if (node instanceof Pane) {
-                panes.add((Pane)node);
-            }
-        }
-
-        return panes;
-    }
-
-    private Bounds retrieveBoundsForPane(Pane pane) {
-        return pane.localToScene(pane.getBoundsInLocal());
-    }
 
     // Movable object, credit to this tutorial: http://java-buddy.blogspot.se/2013/07/javafx-drag-and-move-something.html
-
     // Now with movable stack.
     private EventHandler<MouseEvent> paneOnMousePressedEventHandler = new EventHandler<MouseEvent>() {
         @Override
@@ -388,14 +370,12 @@ public class IdeaController {
         Idea deleteIdea = getIdeaFromPane(pane);
 
         // get all lines associated with this idea and delete them
-        removeNodeFromScene(ideaLineMap.get(deleteIdea));
-        ideaLineMap.remove(deleteIdea);
+        lineDrawer.removeIdeaLine(deleteIdea);
 
-        for (Idea idea : ideaLineMap.keySet()) {
+        for (Idea idea : ideas) {
             if (idea != deleteIdea) {
                 if (idea.hasThisAcquaintance(deleteIdea)) {
                     idea.removeAcquaintance(deleteIdea);
-                    removeNodeFromScene(lineDrawer.getAcquaintanceLine(idea, deleteIdea));
                     lineDrawer.removeAcquaintanceLine(idea, deleteIdea);
                 }
             }
@@ -415,19 +395,10 @@ public class IdeaController {
 
         // Upon delete of an idea with a parent connection, instead of removing line, move it outside of display.
         // Else, the line will be drawn to empty space from an idea.
-        if (deleteIdea.getChildren().size() > 0) {
-            for (Idea child : deleteIdea.getChildren()) {
-                Line line =  ideaLineMap.get(child);
-                line.setStartX(-10);
-                line.setStartY(-10);
-                line.setEndX(-10);
-                line.setEndY(-10);
-            }
-        }
+        lineDrawer.removeParentLines(deleteIdea);
+        lineDrawer.removeIdeaLine(deleteIdea);
 
-        ideaLineMap.remove(deleteIdea);
         ((Group)pane.getParent()).getChildren().remove(pane);
-
     }
 
     private void removeThisConnection(ContextMenuEvent event) {
@@ -437,11 +408,7 @@ public class IdeaController {
             // check if connection is parent-child
             if (connectedIdea.hasThisChild(manipulatedIdea)) {
                 connectedIdea.removeChild(manipulatedIdea);
-                Line line =  ideaLineMap.get(manipulatedIdea);
-                line.setStartX(-10);
-                line.setStartY(-10);
-                line.setEndX(-10);
-                line.setEndY(-10);
+                lineDrawer.hideLine(manipulatedIdea);
             }
             // check if connection is acquaintance
             if (connectedIdea.hasThisAcquaintance(manipulatedIdea)) {
@@ -452,16 +419,11 @@ public class IdeaController {
 
             if (manipulatedIdea.hasThisChild(connectedIdea)) {
                 manipulatedIdea.removeChild(connectedIdea);
-                Line line =  ideaLineMap.get(connectedIdea);
-                line.setStartX(-10);
-                line.setStartY(-10);
-                line.setEndX(-10);
-                line.setEndY(-10);
+                lineDrawer.hideLine(connectedIdea);
             }
 
             if (manipulatedIdea.hasThisAcquaintance(connectedIdea)) {
                 manipulatedIdea.removeAcquaintance(connectedIdea);
-                removeNodeFromScene(lineDrawer.getAcquaintanceLine(manipulatedIdea, connectedIdea));
                 lineDrawer.removeAcquaintanceLine(manipulatedIdea, connectedIdea);
             }
             // if no connection, do nothing
@@ -593,65 +555,17 @@ public class IdeaController {
     };
 
     private void addAcquaintance(Idea idea, IdeaConnectionType connectionType) {
+        ideas.add(idea);
         idea.addAcquaintance(manipulatedIdea, connectionType);
         lineDrawer.addAcquaintanceLine(idea, manipulatedIdea);
     }
 
     public void updateLines(Group ideaGroup) {
-        for (Idea idea : ideaLineMap.keySet()) {
-            drawLineBetweenIdeaShapes(ideaGroup, idea);
+        for (Idea idea : ideas) {
+            lineDrawer.drawIdeaLines(idea);
             lineDrawer.drawAcquaintanceLines(idea);
         }
     }
-
-    private void drawLineBetweenIdeaShapes(Group ideaGroup, Idea idea) {
-        if (idea.hasChildren()) {
-            Set<Idea> children = idea.getChildren();
-
-            Pane start = getIdeaPaneFromGroup(idea.getTheme(), ideaGroup);
-
-            for (Idea child : children) {
-
-                Pane end = getIdeaPaneFromGroup(child.getTheme(), ideaGroup);
-
-                Line line = ideaLineMap.get(child);
-
-                Bounds startBoundsInScene = start.localToScene(start.getBoundsInLocal());
-                Bounds endBoundsInScene = end.localToScene(end.getBoundsInLocal());
-
-                // ADJUST START AND END DEPENDING ON WHERE THE SHAPES ARE IN RELATION TO EACH OTHER.
-                double startX = startBoundsInScene.getMinX() + startBoundsInScene.getWidth() / 2;
-                double startY = startBoundsInScene.getMinY() + startBoundsInScene.getHeight() / 2;
-                double endX = endBoundsInScene.getMinX() + endBoundsInScene.getWidth() / 2;
-                double endY = endBoundsInScene.getMinY() + endBoundsInScene.getHeight() / 2;
-
-                // START is to the left of END
-                if (startBoundsInScene.getMaxX() < endBoundsInScene.getMinX()) {
-                    startX = startBoundsInScene.getMaxX();
-                    endX = endBoundsInScene.getMinX();
-                } else if (startBoundsInScene.getMinX() > endBoundsInScene.getMaxX()) { // START is to the right of END
-                    startX = startBoundsInScene.getMinX();
-                    endX = endBoundsInScene.getMaxX();
-                } else {
-                    // START is above the END
-                    if (startBoundsInScene.getMaxY() < endBoundsInScene.getMinY()) {
-                        startY = startBoundsInScene.getMaxY();
-                        endY = endBoundsInScene.getMinY();
-                    } else if (startBoundsInScene.getMinY() > endBoundsInScene.getMaxY()) { // START is below the END
-                        startY = startBoundsInScene.getMinY();
-                        endY = endBoundsInScene.getMaxY();
-                    }
-                }
-
-                line.setStartX(startX);
-                line.setStartY(startY);
-                line.setEndX(endX);
-                line.setEndY(endY);
-            }
-        }
-    }
-
-
 
     private Point2D getScenePointFromPane(Pane pane) {
 
@@ -667,7 +581,7 @@ public class IdeaController {
     }
 
 
-    private Pane getIdeaPaneFromGroup(String theme, Group group) {
+    public Pane getIdeaPaneFromGroup(String theme, Group group) {
         Pane themePane = new Pane();
 
         for (Node node : group.getChildren()) {
@@ -705,7 +619,7 @@ public class IdeaController {
 
     private Idea getIdeaByTheme(String theme) {
         Idea byTheme = null;
-        for (Idea idea : ideaLineMap.keySet()) {
+        for (Idea idea : ideas) {
             if (idea.getTheme().contentEquals(theme)) {
                 byTheme = idea;
                 break;
@@ -744,7 +658,7 @@ public class IdeaController {
         return text;
     }
 
-    Group getIdeaGroup() {
+    public Group getIdeaGroup() {
         return ideaGroup;
     }
 
@@ -756,27 +670,20 @@ public class IdeaController {
         ((Group)scene.getRoot()).getChildren().add(node);
     }
 
-    private void removeNodeFromScene(Node node) {
+    public void removeNodeFromScene(Node node) {
         ((Group)scene.getRoot()).getChildren().remove(node);
     }
 
     public Set<Idea> getAllIdeas() {
-        Set<Idea> ideas = new HashSet<>();
-
-        ideas.addAll(ideaLineMap.keySet());
-        for (Idea idea : ideas) {
-            ideas.addAll(idea.getAcquaintances().keySet());
-        }
-
         return ideas;
     }
 
     void removeAllIdeas() {
-        Set<Idea> ideas = getAllIdeas();
         for (Idea idea : ideas) {
             deleteIdea(getIdeaPaneFromGroup(idea.getTheme(), ideaGroup));
         }
 
+        ideas.clear();
     }
 
     void unPackToScene(IdeaTracker tracker) {
@@ -791,112 +698,6 @@ public class IdeaController {
             ideaGroup.getChildren().add(pane);
         }
 
-        drawLinesOnUnpacking(ideaPointMap);
-    }
-
-    private void drawLinesOnUnpacking(Map<Idea, PointSer> pointmap) {
-        for (Idea idea : ideaLineMap.keySet()) {
-            if (idea.hasChildren()) {
-                Set<Idea> children = idea.getChildren();
-
-                Pane start = getIdeaPaneFromGroup(idea.getTheme(), ideaGroup);
-                Bounds startBoundsInScene = start.localToScene(start.getBoundsInLocal());
-                double startWidth = startBoundsInScene.getWidth();
-                double startHeight = startBoundsInScene.getHeight();
-
-                for (Idea child : children) {
-
-                    Pane end = getIdeaPaneFromGroup(child.getTheme(), ideaGroup);
-
-                    Line line = ideaLineMap.get(child);
-
-                    Bounds endBoundsInScene = end.localToScene(end.getBoundsInLocal());
-
-                    // ADJUST START AND END DEPENDING ON WHERE THE SHAPES ARE IN RELATION TO EACH OTHER.
-                    double endWidth = endBoundsInScene.getWidth();
-                    double endHeight = endBoundsInScene.getHeight();
-
-                    double startX = pointmap.get(idea).getX();
-                    double startY = pointmap.get(idea).getY() + startHeight / 2;
-                    double endX = pointmap.get(child).getX();
-                    double endY = pointmap.get(child).getY() + endHeight / 2;
-
-                    // START is to the left of END
-                    if ((startX + startWidth)  < endX) {
-                        startX += startWidth;
-                    } else if (startX > (endX + endWidth)) { // START is to the right of END
-                        endX += endWidth;
-                    } else {
-                        // START is above the END
-                        if ((startY + startHeight/2) < endY) {
-                            endY -= endHeight/2;
-                            endX += endWidth/2;
-                            startY += startHeight/2;
-                            startX += startWidth/2;
-                        } else if (startY > (endY + endHeight/2)) { // START is below the END
-                            endY += endHeight/2;
-                            endX += endWidth/2;
-                            startY -= startHeight/2;
-                            startX += startWidth/2;
-                        }
-                    }
-
-                    line.setStartX(startX);
-                    line.setStartY(startY);
-                    line.setEndX(endX);
-                    line.setEndY(endY);
-                }
-            }
-
-            if (idea.getAcquaintances().size() > 0) {
-                Pane start = getIdeaPaneFromGroup(idea.getTheme(), ideaGroup);
-                Bounds startBoundsInScene = start.localToScene(start.getBoundsInLocal());
-                double startWidth = startBoundsInScene.getWidth();
-                double startHeight = startBoundsInScene.getHeight();
-
-                for (Idea acquaintance : idea.getAcquaintances().keySet()) {
-                    Pane end = getIdeaPaneFromGroup(acquaintance.getTheme(), ideaGroup);
-
-                    Line line = lineDrawer.getAcquaintanceLine(idea, acquaintance);
-                    line.getStrokeDashArray().addAll(5.0, 5.0);
-
-                    Bounds endBoundsInScene = end.localToScene(end.getBoundsInLocal());
-
-                    // ADJUST START AND END DEPENDING ON WHERE THE SHAPES ARE IN RELATION TO EACH OTHER.
-                    double endWidth = endBoundsInScene.getWidth();
-                    double endHeight = endBoundsInScene.getHeight();
-
-                    double startX = pointmap.get(idea).getX();
-                    double startY = pointmap.get(idea).getY() + startHeight / 2;
-                    double endX = pointmap.get(acquaintance).getX();
-                    double endY = pointmap.get(acquaintance).getY() + endHeight / 2;
-
-                    // START is to the left of END
-                    if ((startX + startWidth) < endX) {
-                        startX += startWidth;
-                    } else if (startX > (endX + endWidth)) { // START is to the right of END
-                        endX += endWidth;
-                    } else {
-                        // START is above the END
-                        if ((startY + startHeight / 2) < endY) {
-                            endY -= endHeight / 2;
-                            endX += endWidth / 2;
-                            startY += startHeight / 2;
-                            startX += startWidth / 2;
-                        } else if (startY > (endY + endHeight / 2)) { // START is below the END
-                            endY += endHeight / 2;
-                            endX += endWidth / 2;
-                            startY -= startHeight / 2;
-                            startX += startWidth / 2;
-                        }
-                    }
-
-                    line.setStartX(startX);
-                    line.setStartY(startY);
-                    line.setEndX(endX);
-                    line.setEndY(endY);
-                }
-            }
-        }
+        lineDrawer.drawLinesOnUnpacking(ideaPointMap);
     }
 }
