@@ -43,7 +43,6 @@ public class IdeaController {
         this.ideaGroup = ideaGroup;
         track = new BoundTrack(scene.getWidth(), scene.getHeight());
         contextMenu = new ContextMenu();
-
         this.scene.setOnMouseClicked(event -> contextMenu.hide());
     }
 
@@ -874,6 +873,10 @@ public class IdeaController {
             }
         }
         return text;
+    }
+
+    public Group getIdeaGroup() {
+        return ideaGroup;
     }
 
     private void addNodeToScene(Node node) {
