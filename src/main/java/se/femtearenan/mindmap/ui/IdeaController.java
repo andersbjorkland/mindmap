@@ -1,4 +1,4 @@
-package controller;
+package se.femtearenan.mindmap.ui;
 
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
@@ -18,7 +18,11 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import model.*;
+import se.femtearenan.mindmap.model.*;
+import se.femtearenan.mindmap.utility.IdeaTracker;
+import se.femtearenan.mindmap.utility.PointSer;
+import se.femtearenan.mindmap.utility.SelectionState;
+import se.femtearenan.mindmap.utility.SizeChoice;
 
 import java.util.*;
 
@@ -712,7 +716,7 @@ public class IdeaController {
         return new Point2D(x, y);
     }
 
-    Point2D getScenePointFromIdea(Idea idea) {
+    public Point2D getScenePointFromIdea(Idea idea) {
         Pane pane = getIdeaPaneFromGroup(idea.getTheme(), ideaGroup);
         return getScenePointFromPane(pane);
     }
@@ -790,7 +794,7 @@ public class IdeaController {
         return text;
     }
 
-    public Group getIdeaGroup() {
+    Group getIdeaGroup() {
         return ideaGroup;
     }
 
@@ -802,7 +806,7 @@ public class IdeaController {
         ((Group)scene.getRoot()).getChildren().remove(node);
     }
 
-    Set<Idea> getAllIdeas() {
+    public Set<Idea> getAllIdeas() {
         Set<Idea> ideas = new HashSet<>();
 
         ideas.addAll(ideaLineMap.keySet());
@@ -813,7 +817,7 @@ public class IdeaController {
         return ideas;
     }
 
-    public void removeAllIdeas() {
+    void removeAllIdeas() {
         Set<Idea> ideas = getAllIdeas();
         for (Idea idea : ideas) {
             deleteIdea(getIdeaPaneFromGroup(idea.getTheme(), ideaGroup));
@@ -821,7 +825,7 @@ public class IdeaController {
 
     }
 
-    public void unPackToScene(IdeaTracker tracker) {
+    void unPackToScene(IdeaTracker tracker) {
         Map<Idea, PointSer> ideaPointMap = tracker.getPaneSceneTrack();
 
         for (Idea idea : ideaPointMap.keySet()) {

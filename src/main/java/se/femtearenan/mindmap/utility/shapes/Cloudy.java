@@ -1,4 +1,4 @@
-package shapes;
+package se.femtearenan.mindmap.utility.shapes;
 
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Shape;

@@ -1,6 +1,6 @@
 package se.femtearenan.mindmap;
 
-import controller.IdeaController;
+import se.femtearenan.mindmap.ui.IdeaController;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Node;
