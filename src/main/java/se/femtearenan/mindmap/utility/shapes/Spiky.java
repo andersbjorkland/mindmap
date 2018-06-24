@@ -1,4 +1,4 @@
-package shapes;
+package se.femtearenan.mindmap.utility.shapes;
 
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;

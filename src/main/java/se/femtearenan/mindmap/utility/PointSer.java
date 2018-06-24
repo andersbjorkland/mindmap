@@ -1,4 +1,4 @@
-package model;
+package se.femtearenan.mindmap.utility;
 
 import java.io.Serializable;
 
@@ -8,7 +8,7 @@ public class PointSer implements Serializable {
     private double x;
     private double y;
 
-    public PointSer(double x, double y) {
+    PointSer(double x, double y) {
         this.x = x;
         this.y = y;
     }

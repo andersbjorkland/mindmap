@@ -1,4 +1,4 @@
-package model;
+package se.femtearenan.mindmap.model;
 
 
 import java.io.Serializable;
@@ -53,7 +53,6 @@ public class Idea implements Serializable {
 
     public void addChild(Idea child) {
         child.setParent(this);
-        child.getBubble().setColor(this.getBubble().getColor());
         child.childLevel = this.childLevel + 1;
         children.add(child);
     }
