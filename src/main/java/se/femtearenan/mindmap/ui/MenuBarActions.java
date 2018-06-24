@@ -75,6 +75,10 @@ public class MenuBarActions {
 
     }
 
+    void close() {
+        stage.close();
+    }
+
     private void clearScene() {
         ObservableList<Node> nodes =  ideaGroup.getChildren();
         if (nodes.size() > 0) {

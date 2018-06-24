@@ -20,11 +20,13 @@ public class MenuBarGenerator {
         Menu menuFile = new Menu("File");
         MenuItem newMindMap = new MenuItem("New");
         newMindMap.setOnAction(event -> actions.newMindMap());
-        MenuItem save = new MenuItem("Save");
-        save.setOnAction(event -> actions.save());
         MenuItem open = new MenuItem("Open");
         open.setOnAction(event -> actions.open());
-        menuFile.getItems().addAll(newMindMap, save, open);
+        MenuItem save = new MenuItem("Save");
+        save.setOnAction(event -> actions.save());
+        MenuItem exit = new MenuItem("Exit");
+        exit.setOnAction(event -> actions.close());
+        menuFile.getItems().addAll(newMindMap, open, save, exit);
         menuBar.getMenus().add(menuFile);
 
         return menuBar;

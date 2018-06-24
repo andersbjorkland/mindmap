@@ -29,13 +29,14 @@ public class Display extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         try {
-            Image icon = new Image("icon.png");
+            Image icon = new Image("/icon.png");
             primaryStage.getIcons().add(icon);
         } catch(Exception ex) {
             ex.printStackTrace();
         }
 
         stage = primaryStage;
+
         ideaGroup = new Group();
         controller = new IdeaController(scene, ideaGroup);
 
