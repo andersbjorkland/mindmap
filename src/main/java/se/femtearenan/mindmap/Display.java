@@ -1,26 +1,21 @@
 package se.femtearenan.mindmap;
 
 import controller.IdeaController;
-import controller.IdeaTracker;
 import javafx.application.Application;
-import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
-import java.io.*;
+import se.femtearenan.mindmap.ui.MenuActions;
+import se.femtearenan.mindmap.ui.MenuGenerator;
 
 
 public class Display extends Application {
-    static final double SCENE_WIDTH = 800.0;
+    public static final double SCENE_WIDTH = 800.0;
     private static final double SCENE_HEIGHT = 600.0;
     private static final Color SCENE_BACKGROUND = Color.LIGHTGRAY;
 

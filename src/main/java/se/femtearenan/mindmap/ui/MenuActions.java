@@ -1,4 +1,4 @@
-package se.femtearenan.mindmap;
+package se.femtearenan.mindmap.ui;
 
 import controller.IdeaController;
 import controller.IdeaTracker;
@@ -10,14 +10,14 @@ import javafx.stage.Stage;
 
 import java.io.*;
 
-class MenuActions {
+public class MenuActions {
     private IdeaController controller;
     private Stage stage;
     private Group ideaGroup;
     private IdeaTracker ideaTracker;
 
 
-    MenuActions(IdeaController controller, Stage stage) {
+    public MenuActions(IdeaController controller, Stage stage) {
         this.controller = controller;
         this.stage = stage;
         this.ideaGroup = controller.getIdeaGroup();

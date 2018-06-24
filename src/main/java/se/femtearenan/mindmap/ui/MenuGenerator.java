@@ -1,14 +1,15 @@
-package se.femtearenan.mindmap;
+package se.femtearenan.mindmap.ui;
 
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import se.femtearenan.mindmap.Display;
 
-class MenuGenerator {
+public class MenuGenerator {
     private MenuActions actions;
     private MenuBar menuBar;
 
-    MenuGenerator(MenuActions actions) {
+    public MenuGenerator(MenuActions actions) {
         this.actions = actions;
         menuBar = generateMenuBar();
     }
@@ -29,7 +30,7 @@ class MenuGenerator {
         return menuBar;
     }
 
-    MenuBar getMenuBar() {
+    public MenuBar getMenuBar() {
         return menuBar;
     }
 }
